@@ -4,1420 +4,1793 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YAVER Admin Takip Sistemi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"></script>
+
   <style>
-    :root {
-      --bg: #0b0b0b;
-      --panel: #141414;
-      --panel-2: #1b1b1b;
-      --panel-3: #232323;
-      --line: #313131;
-      --text: #f5f5f5;
-      --muted: #b7b7b7;
-      --yellow: #f5c400;
-      --yellow-2: #ffd84d;
-      --green: #33d17a;
-      --red: #ff5d5d;
-      --blue: #4ca7ff;
-      --purple: #b88cff;
-      --orange: #ff9f43;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --radius: 18px;
+    :root{
+      --bg:#090909;
+      --panel:#121212;
+      --panel-2:#1a1a1a;
+      --border:#2a2a2a;
+      --text:#f4f4f4;
+      --muted:#b5b5b5;
+      --yellow:#f5c400;
+      --yellow-2:#ffd84d;
+      --danger:#d45d5d;
+      --danger-bg:#331818;
+      --ok:#44c07a;
+      --ok-bg:#123222;
+      --warn:#d9a723;
+      --warn-bg:#342a10;
+      --blue:#56a3ff;
+      --blue-bg:#132538;
+      --purple:#bb7cff;
+      --purple-bg:#2a1936;
+      --shadow:0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top right, rgba(245,196,0,.08), transparent 28%), var(--bg); color: var(--text); font-family: Inter, "Noto Sans SC", sans-serif; }
-    body { min-height: 100vh; }
-    .app { max-width: 1600px; margin: 0 auto; padding: 24px; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,"Noto Sans SC",sans-serif}
+    body{min-height:100vh}
 
-    .header {
-      display: grid;
-      grid-template-columns: minmax(280px, 420px) 1fr;
-      gap: 20px;
-      align-items: center;
-      margin-bottom: 22px;
+    .app{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:20px;
+      padding:20px;
     }
 
-    .brand {
-      background: linear-gradient(180deg, rgba(255,216,77,.10), rgba(255,216,77,.02));
-      border: 1px solid rgba(245,196,0,.18);
-      border-radius: 24px;
-      padding: 18px 20px;
-      box-shadow: var(--shadow);
+    .sidebar, .main-panel, .panel, .admin-detail-card, .metric-card, .big-card, .admin-item{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
     }
 
-    .brand-top {
-      display: flex;
-      gap: 16px;
-      align-items: center;
+    .sidebar{
+      padding:18px;
+      position:sticky;
+      top:20px;
+      height:calc(100vh - 40px);
+      overflow:auto;
     }
 
-    .logo-wrap { min-width: 160px; flex: 0 0 auto; display:flex; align-items:center; }
-    .logo-text { font-size: 64px; font-weight: 900; letter-spacing: -2px; line-height: 1; background: linear-gradient(180deg, #ffe27a 0%, #f5c400 55%, #d89f00 100%); -webkit-background-clip:text; background-clip:text; color: transparent; text-shadow: 0 6px 18px rgba(245,196,0,.18); }
-    .btn-stack { display:flex; flex-direction:column; align-items:center; line-height:1.1; }
-    .btn-stack .zh { font-size: 11px; color: rgba(0,0,0,.72); margin-top: 4px; }
-    .btn-secondary .btn-stack .zh, .btn-danger .btn-stack .zh { color: var(--muted); }
-    .tab .zh { display:block; font-size:11px; color: var(--muted); margin-top: 3px; }
-    .brand-title { display: flex; flex-direction: column; gap: 6px; }
-    .brand-title .tr { font-size: 24px; font-weight: 800; letter-spacing: .2px; }
-    .brand-title .zh { font-size: 14px; color: var(--muted); }
-
-    .header-side {
-      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      box-shadow: var(--shadow);
-      min-height: 120px;
+    .main{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      min-width:0;
     }
 
-    .header-side h1 { margin: 0 0 8px; font-size: 24px; }
-    .header-side p { margin: 0; color: var(--muted); line-height: 1.55; }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(245,196,0,.28);
-      background: rgba(245,196,0,.08);
-      color: var(--yellow-2);
-      font-size: 13px;
-      white-space: nowrap;
+    .hero{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      padding:18px 22px;
+      background:radial-gradient(circle at right top, rgba(245,196,0,.12), transparent 35%), linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 430px 1fr;
-      gap: 22px;
-      align-items: start;
+    .logo-wrap{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      min-width:0;
     }
 
-    .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow);
+    .logo-box{
+      min-width:340px;
+      height:110px;
+      border-radius:22px;
+      background:linear-gradient(180deg,#111,#0d0d0d);
+      border:1px solid rgba(245,196,0,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:inset 0 0 30px rgba(245,196,0,.06);
+      padding:14px 20px;
     }
 
-    .panel h2, .panel h3 { margin: 0 0 6px; }
-    .panel-sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
-
-    .form-grid { display: grid; gap: 14px; }
-    .input-group { display: grid; gap: 7px; }
-    .label-tr { font-size: 14px; font-weight: 700; }
-    .label-zh { font-size: 12px; color: var(--muted); }
-
-    input[type="text"], input[type="time"], input[type="number"], textarea, select {
-      width: 100%;
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 14px;
-      outline: none;
-      font: inherit;
-      transition: .2s border-color, .2s box-shadow;
+    .logo-svg{
+      width:100%;
+      height:100%;
     }
 
-    textarea { min-height: 86px; resize: vertical; }
-    input:focus, textarea:focus, select:focus { border-color: rgba(245,196,0,.65); box-shadow: 0 0 0 4px rgba(245,196,0,.10); }
-
-    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    button {
-      appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 700;
-      border-radius: 14px; padding: 12px 16px; transition: .2s transform, .2s opacity, .2s background;
-    }
-    button:hover { transform: translateY(-1px); }
-    .btn-primary { background: var(--yellow); color: #121212; }
-    .btn-secondary { background: transparent; color: var(--yellow-2); border: 1px solid rgba(245,196,0,.35); }
-    .btn-danger { background: rgba(255,93,93,.12); color: #ffb3b3; border: 1px solid rgba(255,93,93,.28); }
-
-    .muted-box {
-      border: 1px dashed rgba(245,196,0,.22);
-      background: rgba(245,196,0,.03);
-      border-radius: 16px;
-      padding: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
+    .hero-right{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:12px;
+      flex-wrap:wrap;
     }
 
-    .admin-list {
-      display: grid;
-      gap: 12px;
-      max-height: calc(100vh - 280px);
-      overflow: auto;
-      padding-right: 4px;
+    .pill{
+      border:1px solid rgba(245,196,0,.35);
+      color:var(--yellow);
+      background:rgba(245,196,0,.08);
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      text-align:center;
     }
 
-    .admin-card {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      cursor: pointer;
-      transition: .2s border-color, .2s transform, .2s background;
-    }
-    .admin-card:hover { transform: translateY(-1px); border-color: rgba(245,196,0,.35); }
-    .admin-card.active { border-color: var(--yellow); background: linear-gradient(180deg, rgba(245,196,0,.11), rgba(245,196,0,.04)); }
-    .admin-card h4 { margin: 0 0 4px; font-size: 15px; }
-    .admin-card .meta { color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .status-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1px solid transparent;
-    }
-    .tag-ok { background: rgba(51,209,122,.10); color: #8df0b6; border-color: rgba(51,209,122,.25); }
-    .tag-warn { background: rgba(255,159,67,.12); color: #ffc48c; border-color: rgba(255,159,67,.26); }
-    .tag-bad { background: rgba(255,93,93,.12); color: #ffb3b3; border-color: rgba(255,93,93,.26); }
-    .tag-blue { background: rgba(76,167,255,.12); color: #a6d4ff; border-color: rgba(76,167,255,.26); }
-    .tag-purple { background: rgba(184,140,255,.12); color: #d8bcff; border-color: rgba(184,140,255,.26); }
-
-    .right-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
+    .section-title{
+      margin:0 0 4px;
+      font-size:20px;
+      font-weight:800;
     }
 
-    .tabs { display: flex; gap: 10px; flex-wrap: wrap; }
-    .tab {
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .tab.active { color: #111; background: var(--yellow); border-color: var(--yellow); }
-
-    .hero-empty {
-      min-height: 340px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      border: 1px dashed var(--line);
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));
-      padding: 24px;
-    }
-    .hero-empty h3 { margin: 0 0 10px; font-size: 26px; }
-    .hero-empty p { margin: 0; color: var(--muted); max-width: 620px; line-height: 1.65; }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .summary-card {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 110px;
-    }
-    .summary-card .k { color: var(--muted); font-size: 12px; line-height: 1.4; }
-    .summary-card .v { margin-top: 10px; font-size: 26px; font-weight: 800; }
-    .summary-card .s { margin-top: 6px; color: var(--muted); font-size: 12px; }
-
-    .section {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin-bottom: 12px; }
-    .section-head h3 { margin: 0; }
-    .section-head .sub { color: var(--muted); font-size: 12px; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th, td {
-      text-align: left;
-      vertical-align: top;
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    th {
-      color: var(--yellow-2);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-    tr:hover td { background: rgba(255,255,255,.02); }
-    .cell-muted { color: var(--muted); }
-
-    .weekday-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .weekday-item {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 8px;
-      text-align: center;
-    }
-    .weekday-item input { margin-bottom: 6px; }
-    .weekday-item .tr { font-size: 12px; font-weight: 700; }
-    .weekday-item .zh { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-    .config-card {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px;
-      background: var(--panel-2);
-      margin-top: 14px;
+    .section-sub{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
     }
 
-    .config-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .config-header h4 { margin: 0 0 4px; }
-    .config-header .meta { color: var(--muted); font-size: 12px; }
-
-    .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .config-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-    .small-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-
-    .compare-highlight {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .highlight-card {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-    }
-    .highlight-card h4 { margin: 0 0 8px; }
-    .highlight-card ol { margin: 0; padding-left: 18px; color: var(--muted); }
-    .highlight-card li { margin: 8px 0; }
-
-    .footer-note {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      padding: 10px 0 0;
+    .label{
+      display:block;
+      margin-bottom:10px;
     }
 
-    @media (max-width: 1200px) {
-      .layout, .header { grid-template-columns: 1fr; }
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .compare-highlight { grid-template-columns: 1fr; }
-      .config-grid, .config-grid-3 { grid-template-columns: 1fr; }
+    .label .tr{
+      display:block;
+      font-size:15px;
+      font-weight:800;
+      margin-bottom:4px;
+      color:var(--text);
     }
 
-    @media (max-width: 720px) {
-      .app { padding: 14px; }
-      .summary-grid { grid-template-columns: 1fr; }
-      .weekday-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .brand-top, .header-side { flex-direction: column; align-items: flex-start; }
-      .logo-text { font-size: 46px; }
-      th:nth-child(n+5), td:nth-child(n+5) { min-width: 120px; }
-      .section { overflow-x: auto; }
+    .label .zh{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="time"],
+    select,
+    textarea{
+      width:100%;
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:16px;
+      outline:none;
+      transition:.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:rgba(245,196,0,.55);
+      box-shadow:0 0 0 3px rgba(245,196,0,.10);
+    }
+
+    textarea{
+      resize:vertical;
+      min-height:120px;
+      line-height:1.45;
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .file-input{
+      width:100%;
+      font-size:14px;
+      color:var(--text);
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:16px;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    button{
+      border:none;
+      cursor:pointer;
+      transition:.18s ease;
+      font-weight:800;
+      border-radius:18px;
+      padding:14px 18px;
+      font-size:16px;
+    }
+
+    .btn-primary{
+      background:var(--yellow);
+      color:#111;
+    }
+
+    .btn-primary:hover{background:var(--yellow-2)}
+    .btn-secondary{
+      background:transparent;
+      color:var(--yellow);
+      border:1px solid rgba(245,196,0,.45);
+    }
+    .btn-secondary:hover{
+      background:rgba(245,196,0,.09);
+    }
+    .btn-danger{
+      background:var(--danger-bg);
+      color:#ffb8b8;
+      border:1px solid rgba(212,93,93,.45);
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .tab{
+      padding:12px 18px;
+      border-radius:999px;
+      background:#222;
+      color:#ddd;
+      border:1px solid #333;
+      font-size:15px;
+      font-weight:800;
+    }
+
+    .tab.active{
+      background:var(--yellow);
+      color:#111;
+      border-color:transparent;
+    }
+
+    .main-panel{
+      padding:16px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 340px 1fr;
+      gap:16px;
+      min-height:560px;
+    }
+
+    .admin-list-card, .content-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.008));
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:14px;
+      min-width:0;
+    }
+
+    .admin-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:720px;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .admin-item{
+      padding:14px;
+      cursor:pointer;
+      transition:.15s ease;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+
+    .admin-item.active{
+      border-color:rgba(245,196,0,.75);
+      box-shadow:inset 0 0 0 1px rgba(245,196,0,.18);
+      background:radial-gradient(circle at top right, rgba(245,196,0,.12), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+
+    .admin-item h4{
+      margin:0 0 8px;
+      font-size:18px;
+      line-height:1.2;
+      word-break:break-word;
+    }
+
+    .admin-item .meta{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.45;
+      word-break:break-word;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      margin-top:10px;
+    }
+
+    .badge.ok{background:var(--ok-bg);color:#8cf0b6;border:1px solid rgba(68,192,122,.35)}
+    .badge.warn{background:var(--warn-bg);color:#ffd35d;border:1px solid rgba(217,167,35,.35)}
+    .badge.danger{background:var(--danger-bg);color:#ffb0b0;border:1px solid rgba(212,93,93,.35)}
+    .badge.blue{background:var(--blue-bg);color:#9cc7ff;border:1px solid rgba(86,163,255,.35)}
+    .badge.purple{background:var(--purple-bg);color:#dbb6ff;border:1px solid rgba(187,124,255,.35)}
+
+    .content-card{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      min-width:0;
+    }
+
+    .admin-detail-card{
+      padding:18px;
+    }
+
+    .admin-detail-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    .admin-detail-top h3{
+      margin:0 0 6px;
+      font-size:26px;
+      word-break:break-word;
+    }
+
+    .inline-meta{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .weekly-grid{
+      display:grid;
+      grid-template-columns:repeat(7, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .day-box{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:10px 8px;
+      text-align:center;
+      background:var(--panel-2);
+    }
+
+    .day-box input{
+      width:18px;
+      height:18px;
+      accent-color:var(--yellow);
+      margin-bottom:8px;
+    }
+
+    .day-box .tr{
+      display:block;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .day-box .zh{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:12px;
+    }
+
+    .metric-card{
+      padding:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008));
+    }
+
+    .metric-label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+      line-height:1.4;
+    }
+
+    .metric-value{
+      font-size:28px;
+      font-weight:900;
+      line-height:1.05;
+      margin-bottom:6px;
+      word-break:break-word;
+    }
+
+    .metric-note{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .big-card{
+      padding:16px;
+      min-width:0;
+      overflow:hidden;
+    }
+
+    .card-title{
+      margin:0 0 4px;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    .card-sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:920px;
+      background:#111;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#181818;
+      color:#f7f7f7;
+      font-size:13px;
+      text-align:left;
+      padding:12px 12px;
+      border-bottom:1px solid var(--border);
+      vertical-align:bottom;
+      line-height:1.35;
+    }
+
+    thead th .zh{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:500;
+      margin-top:4px;
+    }
+
+    tbody td{
+      padding:12px 12px;
+      border-bottom:1px solid #222;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    tbody tr:hover{
+      background:#171717;
+    }
+
+    .status-chip{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .status-green{background:var(--ok-bg);color:#8cf0b6;border:1px solid rgba(68,192,122,.35)}
+    .status-yellow{background:var(--warn-bg);color:#ffd35d;border:1px solid rgba(217,167,35,.35)}
+    .status-red{background:var(--danger-bg);color:#ffb0b0;border:1px solid rgba(212,93,93,.35)}
+    .status-blue{background:var(--blue-bg);color:#9cc7ff;border:1px solid rgba(86,163,255,.35)}
+    .status-purple{background:var(--purple-bg);color:#dbb6ff;border:1px solid rgba(187,124,255,.35)}
+    .status-gray{background:#232323;color:#ddd;border:1px solid #3b3b3b}
+
+    .empty{
+      min-height:420px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:30px;
+      border:1px dashed #2e2e2e;
+      border-radius:24px;
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.7;
+    }
+
+    .footer-note{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      padding:6px 0 2px;
+      line-height:1.4;
+    }
+
+    .hidden{display:none !important}
+
+    @media (max-width: 1280px){
+      .metrics{grid-template-columns:repeat(2,1fr)}
+      .layout{grid-template-columns: 300px 1fr}
+    }
+
+    @media (max-width: 980px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:static;height:auto}
+      .layout{grid-template-columns:1fr}
+      .grid-3{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .metrics{grid-template-columns:1fr}
+      .weekly-grid{grid-template-columns:repeat(4, 1fr)}
+      .logo-box{min-width:unset;width:100%;max-width:420px}
+      .hero{flex-direction:column;align-items:flex-start}
+    }
+
+    @media (max-width: 640px){
+      .weekly-grid{grid-template-columns:repeat(2, 1fr)}
+      .app{padding:12px}
+      .sidebar,.main-panel,.hero{border-radius:18px}
+      .metric-value{font-size:24px}
+      .admin-detail-top h3{font-size:22px}
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <header class="header">
-      <div class="brand">
-        <div class="brand-top">
-          <div class="logo-wrap" aria-label="YAVER logo"><div class="logo-text">YAVER</div></div>
-          <div class="brand-title">
-            <div class="tr">Admin Takip Sistemi</div>
-            <div class="zh">管理员追踪系统</div>
+    <aside class="sidebar">
+      <div class="panel">
+        <h2 class="section-title">Veri Yükleme</h2>
+        <p class="section-sub">上传数据</p>
+
+        <div style="height:14px"></div>
+
+        <label class="label">
+          <span class="tr">Excel Dosyaları</span>
+          <span class="zh">Excel 文件</span>
+        </label>
+        <input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" multiple />
+        <div class="small" style="margin-top:8px">En fazla 30 dosya<br>最多 30 个文件</div>
+
+        <div style="height:16px"></div>
+
+        <div class="grid-3">
+          <div>
+            <label class="label">
+              <span class="tr">Geç Kalma Toleransı (dk)</span>
+              <span class="zh">迟到容差（分钟）</span>
+            </label>
+            <input id="lateTolerance" type="number" min="0" value="0" />
           </div>
+          <div>
+            <label class="label">
+              <span class="tr">Erken Çıkış Toleransı (dk)</span>
+              <span class="zh">提前下播容差（分钟）</span>
+            </label>
+            <input id="earlyTolerance" type="number" min="0" value="0" />
+          </div>
+          <div>
+            <label class="label">
+              <span class="tr">Kısa Kesinti Eşiği (dk)</span>
+              <span class="zh">短暂中断阈值（分钟）</span>
+            </label>
+            <input id="shortGapThreshold" type="number" min="0" value="1" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="analyzeBtn" class="btn-primary">Analizi Başlat<br><span style="font-size:12px;font-weight:700">开始分析</span></button>
+          <button id="clearBtn" class="btn-danger">Temizle<br><span style="font-size:12px;font-weight:700">清空</span></button>
+        </div>
+
+        <div style="height:16px"></div>
+
+        <div class="panel" style="padding:14px;border-radius:18px;background:#12100a;border-color:rgba(245,196,0,.16)">
+          <label class="label">
+            <span class="tr">Yüklenen Adminler</span>
+            <span class="zh">已上传管理员</span>
+          </label>
+          <div id="sidebarAdminSummary" class="small">Henüz dosya yok<br>暂无文件</div>
         </div>
       </div>
-      <div class="header-side">
-        <div>
-          <h1>Çoklu Admin Analiz Paneli</h1>
-          <div class="panel-sub">多管理员分析面板</div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div class="logo-wrap">
+          <div class="logo-box">
+            <svg class="logo-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" aria-label="YAVER Logo">
+              <defs>
+                <linearGradient id="yaverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#f1c400"/>
+                  <stop offset="50%" stop-color="#ffd84d"/>
+                  <stop offset="100%" stop-color="#e7b800"/>
+                </linearGradient>
+                <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <g filter="url(#softGlow)">
+                <text x="26" y="150"
+                      font-size="118"
+                      font-weight="900"
+                      font-family="Inter, Segoe UI, Arial, sans-serif"
+                      fill="url(#yaverGrad)">YAVER</text>
+              </g>
+
+              <text x="430" y="102"
+                    font-size="64"
+                    font-weight="850"
+                    font-family="Inter, Segoe UI, Arial, sans-serif"
+                    fill="#f4f4f4">Admin Takip</text>
+              <text x="430" y="172"
+                    font-size="64"
+                    font-weight="850"
+                    font-family="Inter, Segoe UI, Arial, sans-serif"
+                    fill="#f4f4f4">Sistemi</text>
+              <text x="436" y="228"
+                    font-size="36"
+                    font-weight="700"
+                    font-family="Noto Sans SC, Microsoft YaHei, Arial, sans-serif"
+                    fill="#bdbdbd">管理员追踪系统</text>
+            </svg>
+          </div>
         </div>
-        <div class="pill">Türkiye Saati<br>土耳其时间</div>
+
+        <div class="hero-right">
+          <div class="pill">UTC → Türkiye Saati<br>UTC → 土耳其时间</div>
+          <div class="pill">Çoklu Admin Analizi<br>多管理员分析</div>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab active" id="tabDetail">Admin Detayı<br><span style="font-size:11px;font-weight:700">管理员详情</span></button>
+        <button class="tab" id="tabCompare">Karşılaştırma<br><span style="font-size:11px;font-weight:700">对比</span></button>
       </div>
-    </header>
 
-    <div class="layout">
-      <aside class="panel">
-        <h2>Veri Yükleme</h2>
-        <div class="panel-sub">上传数据</div>
-
-        <div class="form-grid">
-          <div class="input-group">
-            <div class="label-tr">Excel Dosyaları</div>
-            <div class="label-zh">Excel 文件</div>
-            <input id="fileInput" type="file" accept=".xlsx,.xls" multiple />
-            <div class="small-note">En fazla 30 dosya<br>最多 30 个文件</div>
+      <section class="main-panel">
+        <div id="detailView" class="layout">
+          <div class="admin-list-card">
+            <h3 class="card-title">Admin Listesi</h3>
+            <p class="card-sub">管理员列表</p>
+            <div id="adminList" class="admin-list"></div>
           </div>
 
-          <div class="config-grid-3">
-            <div class="input-group">
-              <div class="label-tr">Geç Kalma Toleransı (dk)</div>
-              <div class="label-zh">迟到容差（分钟）</div>
-              <input id="lateTolerance" type="number" min="0" value="0" />
-            </div>
-            <div class="input-group">
-              <div class="label-tr">Erken Çıkış Toleransı (dk)</div>
-              <div class="label-zh">提前下播容差（分钟）</div>
-              <input id="earlyTolerance" type="number" min="0" value="0" />
-            </div>
-            <div class="input-group">
-              <div class="label-tr">Kısa Kesinti Eşiği (dk)</div>
-              <div class="label-zh">短暂中断阈值（分钟）</div>
-              <input id="dropThreshold" type="number" min="0" value="1" />
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn-primary" id="analyzeBtn"><span class="btn-stack"><span>Analizi Başlat</span><span class="zh">开始分析</span></span></button>
-            <button class="btn-danger" id="clearBtn"><span class="btn-stack"><span>Temizle</span><span class="zh">清空</span></span></button>
-          </div>
-
-          <div class="muted-box">
-            <strong>İzinli / 请假 Günler / 请假日期</strong><br>
-            <span class="mono">YYYY-MM-DD</span><br><br>
-            <strong>Yayın Değişikliği / 调班日期</strong><br>
-            <span class="mono">YYYY-MM-DD|AdminID</span>
-          </div>
-        </div>
-
-        <div id="adminConfigList" class="admin-list" style="margin-top:16px;"></div>
-      </aside>
-
-      <main>
-        <div class="right-top">
-          <div class="tabs">
-            <div class="tab active" data-view="detail">Admin Detayı<span class="zh">管理员详情</span></div>
-            <div class="tab" data-view="compare">Karşılaştırma<span class="zh">对比</span></div>
-          </div>
-        </div>
-
-        <div id="contentArea">
-          <div class="hero-empty">
-            <div>
-              <h3>Henüz analiz yok</h3>
-              <div class="panel-sub">暂无分析</div>
+          <div class="content-card">
+            <div id="detailContent" class="empty">
+              Henüz dosya yok<br>暂无文件
             </div>
           </div>
         </div>
-        <div class="footer-note">YAVER Admin Takip Sistemi<br>管理员追踪系统</div>
-      </main>
-    </div>
+
+        <div id="compareView" class="hidden">
+          <div class="content-card">
+            <div id="compareContent" class="empty">
+              Karşılaştırma için analiz üret<br>请先生成分析
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          YAVER Admin Takip Sistemi<br>
+          管理员追踪系统
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
-    const { DateTime, Interval } = luxon;
-    const STORAGE_KEY = 'yaverAdminTrackerProfiles_v1';
-    const state = {
-      admins: [],
-      selectedAdminId: null,
-      view: 'detail',
-      analyses: new Map(),
+    const { DateTime } = luxon;
+
+    const appState = {
+      files: [],
+      selectedIndex: null,
+      analysisGenerated: false,
+      comparisonRows: []
     };
 
-    const el = {
-      fileInput: document.getElementById('fileInput'),
-      adminConfigList: document.getElementById('adminConfigList'),
-      contentArea: document.getElementById('contentArea'),
-      analyzeBtn: document.getElementById('analyzeBtn'),
-      clearBtn: document.getElementById('clearBtn'),
-      lateTolerance: document.getElementById('lateTolerance'),
-      earlyTolerance: document.getElementById('earlyTolerance'),
-      dropThreshold: document.getElementById('dropThreshold'),
-      tabs: [...document.querySelectorAll('.tab')],
+    const dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    const dayLabels = {
+      monday:{tr:'Pzt', zh:'周一'},
+      tuesday:{tr:'Sal', zh:'周二'},
+      wednesday:{tr:'Çar', zh:'周三'},
+      thursday:{tr:'Per', zh:'周四'},
+      friday:{tr:'Cum', zh:'周五'},
+      saturday:{tr:'Cmt', zh:'周六'},
+      sunday:{tr:'Paz', zh:'周日'},
     };
 
-    const weekdayDefs = [
-      ['monday', 'Pzt', '周一'],
-      ['tuesday', 'Sal', '周二'],
-      ['wednesday', 'Çar', '周三'],
-      ['thursday', 'Per', '周四'],
-      ['friday', 'Cum', '周五'],
-      ['saturday', 'Cmt', '周六'],
-      ['sunday', 'Paz', '周日'],
-    ];
+    const fileInput = document.getElementById('fileInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const adminListEl = document.getElementById('adminList');
+    const detailContent = document.getElementById('detailContent');
+    const compareContent = document.getElementById('compareContent');
+    const sidebarAdminSummary = document.getElementById('sidebarAdminSummary');
 
-    const weekdayLuxon = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const tabDetail = document.getElementById('tabDetail');
+    const tabCompare = document.getElementById('tabCompare');
+    const detailView = document.getElementById('detailView');
+    const compareView = document.getElementById('compareView');
 
-    function uid(prefix = 'id') {
-      return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
+    fileInput.addEventListener('change', handleFiles);
+    analyzeBtn.addEventListener('click', analyzeAll);
+    clearBtn.addEventListener('click', clearAll);
+
+    tabDetail.addEventListener('click', () => switchTab('detail'));
+    tabCompare.addEventListener('click', () => switchTab('compare'));
+
+    function switchTab(tab){
+      const isDetail = tab === 'detail';
+      tabDetail.classList.toggle('active', isDetail);
+      tabCompare.classList.toggle('active', !isDetail);
+      detailView.classList.toggle('hidden', !isDetail);
+      compareView.classList.toggle('hidden', isDetail);
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    function clearAll(){
+      appState.files = [];
+      appState.selectedIndex = null;
+      appState.analysisGenerated = false;
+      appState.comparisonRows = [];
+      fileInput.value = '';
+      renderAll();
     }
 
-    function parseUtcToTR(raw) {
-      if (!raw) return null;
-      let s = String(raw).trim();
+    function safeString(v){
+      return v == null ? '' : String(v).trim();
+    }
+
+    function excelSerialToUTCDate(serial) {
+      const utcDays = Math.floor(serial - 25569);
+      const utcValue = utcDays * 86400;
+      const fractionalDay = serial - Math.floor(serial) + 0.0000001;
+      const totalSeconds = Math.floor(86400 * fractionalDay);
+      const seconds = totalSeconds % 60;
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const minutes = totalMinutes % 60;
+      const hours = Math.floor(totalMinutes / 60);
+      const d = new Date(utcValue * 1000);
+      d.setUTCHours(hours, minutes, seconds, 0);
+      return d;
+    }
+
+    function parseUtcToTR(raw){
+      if (raw == null || raw === '') return null;
+
+      if (typeof raw === 'number' && isFinite(raw)) {
+        const d = excelSerialToUTCDate(raw);
+        return DateTime.fromJSDate(d, { zone: 'UTC' }).setZone('Europe/Istanbul');
+      }
+
+      const s = String(raw).trim();
+
       let dt = DateTime.fromFormat(s, 'MM/dd/yyyy HH:mm:ss', { zone: 'UTC' });
+      if (!dt.isValid) dt = DateTime.fromFormat(s, 'M/d/yyyy H:mm:ss', { zone: 'UTC' });
+      if (!dt.isValid) dt = DateTime.fromFormat(s, 'yyyy-MM-dd HH:mm:ss', { zone: 'UTC' });
       if (!dt.isValid) dt = DateTime.fromISO(s, { zone: 'UTC' });
-      if (!dt.isValid) dt = DateTime.fromJSDate(new Date(s), { zone: 'UTC' });
-      if (!dt.isValid) return null;
+
+      if (!dt.isValid) {
+        const native = new Date(s);
+        if (!isNaN(native.getTime())) {
+          dt = DateTime.fromJSDate(native, { zone: 'UTC' });
+        }
+      }
+
+      if (!dt || !dt.isValid) return null;
       return dt.setZone('Europe/Istanbul');
     }
 
-    function parseRows(sheetJson) {
+    function parseRows(sheetJson){
       const normalized = [];
       for (const row of sheetJson) {
-        const roomId = row['房间XID'] ?? row['房间ID'] ?? row['房间Xid'] ?? row['房间'];
-        const adminId = row['用户XID'] ?? row['用户ID'] ?? row['用户Xid'];
+        const roomId = safeString(row['房间XID'] ?? row['房间ID'] ?? row['房间Xid'] ?? row['房间']);
+        const adminId = safeString(row['用户XID'] ?? row['用户ID'] ?? row['用户Xid']);
         const up = row['上麦时间'];
         const down = row['下麦时间'];
-        if (roomId == null || adminId == null || !up || !down) continue;
+
+        if (!roomId || !adminId || up == null || down == null || up === '' || down === '') continue;
+
         const startTR = parseUtcToTR(up);
         const endTR = parseUtcToTR(down);
+
         if (!startTR || !endTR || endTR <= startTR) continue;
+
         normalized.push({
-          roomId: String(roomId).trim(),
-          adminId: String(adminId).trim(),
-          upRaw: String(up).trim(),
-          downRaw: String(down).trim(),
+          roomId,
+          adminId,
           startTR,
           endTR,
+          upRaw: safeString(up),
+          downRaw: safeString(down)
         });
       }
-      normalized.sort((a,b)=>a.startTR.toMillis()-b.startTR.toMillis());
+
+      normalized.sort((a,b) => a.startTR.toMillis() - b.startTR.toMillis());
       return normalized;
     }
 
-    function mergeIntervals(intervals) {
+    function readFileAsArrayBuffer(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function buildTimeOptions(){
+      const arr = [];
+      for(let h=0; h<=24; h++){
+        for(let m=0; m<60; m+=30){
+          if(h === 24 && m > 0) continue;
+          arr.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+        }
+      }
+      return arr;
+    }
+
+    const timeOptions = buildTimeOptions();
+
+    async function handleFiles(e){
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      if (files.length > 30) {
+        alert('En fazla 30 dosya yüklenebilir.\n最多可上传 30 个文件。');
+        fileInput.value = '';
+        return;
+      }
+
+      const parsed = [];
+      const warnings = [];
+
+      for (const file of files) {
+        try {
+          const buffer = await readFileAsArrayBuffer(file);
+          const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
+          const sheetName = workbook.SheetNames[0];
+          const ws = workbook.Sheets[sheetName];
+          const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+          const rawAdminIds = [...new Set(
+            json
+              .map(row => row['用户XID'] ?? row['用户ID'] ?? row['用户Xid'])
+              .filter(v => v != null && String(v).trim() !== '')
+              .map(v => String(v).trim())
+          )];
+
+          const rows = parseRows(json);
+
+          let resolvedAdminId = '';
+          if (rawAdminIds.length === 1) {
+            resolvedAdminId = rawAdminIds[0];
+          } else if (rawAdminIds.length > 1) {
+            resolvedAdminId = rawAdminIds[0];
+            warnings.push(`${file.name}: birden fazla Admin ID bulundu / 存在多个管理员ID`);
+          } else {
+            warnings.push(`${file.name}: Admin ID okunamadı / 无法读取管理员ID`);
+          }
+
+          const firstStart = rows.length ? rows[0].startTR : null;
+          const lastEnd = rows.length ? rows[rows.length-1].endTR : null;
+
+          parsed.push({
+            fileName: file.name,
+            adminName: '',
+            adminId: resolvedAdminId,
+            roomId: '',
+            startTime: '22:00',
+            endTime: '24:00',
+            weeklySchedule: {
+              monday: true,
+              tuesday: true,
+              wednesday: true,
+              thursday: true,
+              friday: true,
+              saturday: false,
+              sunday: false
+            },
+            leaveDatesText: '',
+            substitutionText: '',
+            rows,
+            rawCount: json.length,
+            firstStart,
+            lastEnd,
+            analysis: null,
+            status: resolvedAdminId ? 'ready' : 'missing-id'
+          });
+        } catch (err) {
+          warnings.push(`${file.name}: dosya okunamadı / 文件无法读取`);
+        }
+      }
+
+      appState.files = parsed;
+      appState.selectedIndex = parsed.length ? 0 : null;
+      appState.analysisGenerated = false;
+      appState.comparisonRows = [];
+      renderAll();
+
+      if (warnings.length) {
+        alert(warnings.join('\n'));
+      }
+    }
+
+    function renderAll(){
+      renderSidebarSummary();
+      renderAdminList();
+      renderDetail();
+      renderComparison();
+    }
+
+    function renderSidebarSummary(){
+      if (!appState.files.length) {
+        sidebarAdminSummary.innerHTML = 'Henüz dosya yok<br>暂无文件';
+        return;
+      }
+      sidebarAdminSummary.innerHTML = appState.files.map((f, i) => {
+        const name = escapeHtml(f.adminName || '(İsimsiz / 未命名)');
+        const id = escapeHtml(f.adminId || '-');
+        return `${i+1}. ${name} | ID: ${id}`;
+      }).join('<br>');
+    }
+
+    function renderAdminList(){
+      adminListEl.innerHTML = '';
+      if (!appState.files.length) {
+        adminListEl.innerHTML = '<div class="empty" style="min-height:180px">Henüz dosya yok<br>暂无文件</div>';
+        return;
+      }
+
+      appState.files.forEach((f, index) => {
+        const div = document.createElement('div');
+        div.className = `admin-item ${appState.selectedIndex === index ? 'active' : ''}`;
+        div.onclick = () => {
+          appState.selectedIndex = index;
+          renderAll();
+        };
+
+        const badgeClass = !f.adminId ? 'danger' : (f.analysis ? 'ok' : 'blue');
+        const badgeText = !f.adminId
+          ? 'Admin ID eksik / 管理员ID缺失'
+          : (f.analysis ? 'Analiz hazır / 分析完成' : 'Analiz bekleniyor / 等待分析');
+
+        div.innerHTML = `
+          <h4>${escapeHtml(f.adminName || f.fileName)}</h4>
+          <div class="meta">
+            ID / 编号: ${escapeHtml(f.adminId || 'yok')}<br>
+            Oda / 房间: ${escapeHtml(f.roomId || 'yok')}<br>
+            Dosya / 文件: ${escapeHtml(f.fileName)}
+          </div>
+          <div class="badge ${badgeClass}">${badgeText}</div>
+        `;
+        adminListEl.appendChild(div);
+      });
+    }
+
+    function renderDetail(){
+      if (appState.selectedIndex == null || !appState.files.length) {
+        detailContent.className = 'empty';
+        detailContent.innerHTML = 'Henüz dosya yok<br>暂无文件';
+        return;
+      }
+
+      const f = appState.files[appState.selectedIndex];
+
+      detailContent.className = '';
+      detailContent.innerHTML = `
+        <div class="admin-detail-card">
+          <div class="admin-detail-top">
+            <div>
+              <h3>${escapeHtml(f.adminName || f.fileName)}</h3>
+              <div class="inline-meta">
+                Admin ID / 管理员ID: ${escapeHtml(f.adminId || 'yok')}<br>
+                Dosya / 文件: ${escapeHtml(f.fileName)}<br>
+                Satır / 记录数: ${f.rows.length}<br>
+                ${f.firstStart ? `İlk kayıt / 首条记录: ${f.firstStart.toFormat('dd.MM.yyyy HH:mm')}` : ''}<br>
+                ${f.lastEnd ? `Son kayıt / 最后记录: ${f.lastEnd.toFormat('dd.MM.yyyy HH:mm')}` : ''}
+              </div>
+            </div>
+            <div class="badge ${f.adminId ? 'ok' : 'danger'}">
+              ${f.adminId ? 'ID bulundu / 已识别' : 'ID yok / 无ID'}
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label class="label">
+                <span class="tr">Admin Adı</span>
+                <span class="zh">管理员姓名</span>
+              </label>
+              <input type="text" id="adminNameInput" value="${escapeAttr(f.adminName)}" placeholder="Örn: Karamel" />
+            </div>
+            <div>
+              <label class="label">
+                <span class="tr">Admin Olduğu Oda ID</span>
+                <span class="zh">所属房间 ID</span>
+              </label>
+              <input type="text" id="roomIdInput" value="${escapeAttr(f.roomId)}" placeholder="Örn: 1002" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:16px">
+            <div>
+              <label class="label">
+                <span class="tr">Yayın Başlangıç Saati</span>
+                <span class="zh">开播开始时间</span>
+              </label>
+              ${renderTimeSelect('startTimeSelect', f.startTime)}
+            </div>
+            <div>
+              <label class="label">
+                <span class="tr">Yayın Bitiş Saati</span>
+                <span class="zh">开播结束时间</span>
+              </label>
+              ${renderTimeSelect('endTimeSelect', f.endTime)}
+            </div>
+          </div>
+
+          <div style="margin-top:18px">
+            <label class="label">
+              <span class="tr">Haftalık Yayın Planı</span>
+              <span class="zh">每周开播计划</span>
+            </label>
+            <div class="weekly-grid">
+              ${dayKeys.map(day => `
+                <label class="day-box">
+                  <input data-day="${day}" class="weekly-check" type="checkbox" ${f.weeklySchedule[day] ? 'checked' : ''}>
+                  <span class="tr">${dayLabels[day].tr}</span>
+                  <span class="zh">${dayLabels[day].zh}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:18px">
+            <div>
+              <label class="label">
+                <span class="tr">İzinli Günler</span>
+                <span class="zh">请假日期</span>
+              </label>
+              <textarea id="leaveDatesInput" placeholder="YYYY-MM-DD&#10;YYYY-MM-DD">${escapeHtml(f.leaveDatesText)}</textarea>
+            </div>
+            <div>
+              <label class="label">
+                <span class="tr">Yayın Değişikliği Günleri</span>
+                <span class="zh">调班日期</span>
+              </label>
+              <textarea id="substitutionInput" placeholder="YYYY-MM-DD|TemsilciAdminID&#10;2026-03-14|8888888888">${escapeHtml(f.substitutionText)}</textarea>
+            </div>
+          </div>
+        </div>
+
+        ${f.analysis ? renderAnalysisSection(f) : `
+          <div class="empty" style="min-height:280px">
+            Analiz üretilmedi<br>尚未分析
+          </div>
+        `}
+      `;
+
+      bindDetailInputs();
+    }
+
+    function renderTimeSelect(id, selected){
+      return `
+        <select id="${id}">
+          ${timeOptions.map(t => `<option value="${t}" ${t === selected ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      `;
+    }
+
+    function bindDetailInputs(){
+      const idx = appState.selectedIndex;
+      if (idx == null) return;
+      const f = appState.files[idx];
+
+      document.getElementById('adminNameInput').addEventListener('input', e => {
+        f.adminName = e.target.value;
+        renderSidebarSummary();
+        renderAdminList();
+      });
+
+      document.getElementById('roomIdInput').addEventListener('input', e => {
+        f.roomId = e.target.value.trim();
+        renderAdminList();
+      });
+
+      document.getElementById('startTimeSelect').addEventListener('change', e => {
+        f.startTime = e.target.value;
+      });
+
+      document.getElementById('endTimeSelect').addEventListener('change', e => {
+        f.endTime = e.target.value;
+      });
+
+      document.querySelectorAll('.weekly-check').forEach(chk => {
+        chk.addEventListener('change', e => {
+          const day = e.target.getAttribute('data-day');
+          f.weeklySchedule[day] = e.target.checked;
+        });
+      });
+
+      document.getElementById('leaveDatesInput').addEventListener('input', e => {
+        f.leaveDatesText = e.target.value;
+      });
+
+      document.getElementById('substitutionInput').addEventListener('input', e => {
+        f.substitutionText = e.target.value;
+      });
+    }
+
+    function parseTimeToMinutes(t){
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function buildScheduleWindow(baseDateISO, startTime, endTime){
+      const [y,m,d] = baseDateISO.split('-').map(Number);
+      const startMin = parseTimeToMinutes(startTime);
+      const endMin = parseTimeToMinutes(endTime);
+
+      const start = DateTime.fromObject(
+        { year:y, month:m, day:d, hour:Math.floor(startMin/60), minute:startMin%60 },
+        { zone:'Europe/Istanbul' }
+      );
+
+      let end;
+      if (endTime === '24:00') {
+        end = start.startOf('day').plus({ days:1 });
+      } else {
+        end = DateTime.fromObject(
+          { year:y, month:m, day:d, hour:Math.floor(endMin/60), minute:endMin%60 },
+          { zone:'Europe/Istanbul' }
+        );
+        if (end <= start) end = end.plus({ days:1 });
+      }
+
+      return { start, end };
+    }
+
+    function getScheduleDayKey(dt){
+      switch(dt.weekday){
+        case 1: return 'monday';
+        case 2: return 'tuesday';
+        case 3: return 'wednesday';
+        case 4: return 'thursday';
+        case 5: return 'friday';
+        case 6: return 'saturday';
+        case 7: return 'sunday';
+      }
+    }
+
+    function parseDateLines(text){
+      return new Set(
+        text.split('\n')
+          .map(s => s.trim())
+          .filter(Boolean)
+      );
+    }
+
+    function parseSubstitutions(text){
+      const map = new Map();
+      text.split('\n').map(s => s.trim()).filter(Boolean).forEach(line => {
+        const parts = line.split('|').map(x => x.trim());
+        if (parts.length >= 2) {
+          map.set(parts[0], parts[1]);
+        }
+      });
+      return map;
+    }
+
+    function overlapMinutes(start1, end1, start2, end2){
+      const s = Math.max(start1.toMillis(), start2.toMillis());
+      const e = Math.min(end1.toMillis(), end2.toMillis());
+      return Math.max(0, Math.round((e - s) / 60000));
+    }
+
+    function clipInterval(start1, end1, start2, end2){
+      const s = Math.max(start1.toMillis(), start2.toMillis());
+      const e = Math.min(end1.toMillis(), end2.toMillis());
+      if (e <= s) return null;
+      return {
+        start: DateTime.fromMillis(s, { zone:'Europe/Istanbul' }),
+        end: DateTime.fromMillis(e, { zone:'Europe/Istanbul' })
+      };
+    }
+
+    function mergeIntervals(intervals){
       if (!intervals.length) return [];
-      const sorted = intervals
-        .map(i => ({ start: i.start, end: i.end, roomId: i.roomId }))
-        .sort((a,b)=>a.start.toMillis()-b.start.toMillis());
+      const sorted = [...intervals].sort((a,b) => a.start.toMillis() - b.start.toMillis());
       const merged = [sorted[0]];
-      for (let i=1; i<sorted.length; i++) {
+      for (let i=1; i<sorted.length; i++){
         const cur = sorted[i];
         const last = merged[merged.length - 1];
         if (cur.start <= last.end) {
           if (cur.end > last.end) last.end = cur.end;
         } else {
-          merged.push({ ...cur });
+          merged.push({ start: cur.start, end: cur.end });
         }
       }
       return merged;
     }
 
-    function sumMinutes(intervals) {
-      return intervals.reduce((acc, i) => acc + i.end.diff(i.start, 'minutes').minutes, 0);
-    }
-
-    function formatMin(min) {
-      if (!Number.isFinite(min)) return '-';
-      return `${Math.round(min)} dk`;
-    }
-
-    function formatDt(dt) {
-      return dt ? dt.toFormat('dd.MM.yyyy HH:mm') : '-';
-    }
-
-    function formatDate(dt) {
-      return dt ? dt.toFormat('yyyy-MM-dd') : '-';
-    }
-
-    function parseLeaveDates(text) {
-      return new Set(
-        String(text || '')
-          .split(/\n|,|;/)
-          .map(v => v.trim())
-          .filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v))
-      );
-    }
-
-    function parseSubstitutions(text) {
-      const result = new Map();
-      const lines = String(text || '').split('\n').map(v => v.trim()).filter(Boolean);
-      for (const line of lines) {
-        const [date, substituteAdminId] = line.split('|').map(v => (v || '').trim());
-        if (/^\d{4}-\d{2}-\d{2}$/.test(date) && substituteAdminId) {
-          result.set(date, { date, substituteAdminId });
-        }
-      }
-      return result;
-    }
-
-    function defaultSchedule() {
-      return {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: false,
-        sunday: false,
-      };
-    }
-
-    function timeSelectOptions(selected) {
-      const vals = [];
-      for (let h = 0; h <= 24; h++) {
-        for (let m of [0, 30]) {
-          if (h === 24 && m > 0) continue;
-          vals.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-        }
-      }
-      return vals.map(v => `<option value="${v}" ${v === selected ? 'selected' : ''}>${v}</option>`).join('');
-    }
-
-    function buildAdminConfigCard(admin) {
-      const dayBoxes = weekdayDefs.map(([key, tr, zh]) => `
-        <label class="weekday-item">
-          <input type="checkbox" data-admin-id="${escapeHtml(admin.localId)}" data-schedule-day="${key}" ${admin.schedule?.[key] ? 'checked' : ''} />
-          <div class="tr">${tr}</div>
-          <div class="zh">${zh}</div>
-        </label>
-      `).join('');
-
-      const adminIdStatus = admin.extractedAdminIds.length === 1 ?
-        `<span class="tag tag-ok">ID bulundu<br>已识别</span>` :
-        admin.extractedAdminIds.length > 1 ?
-        `<span class="tag tag-warn">Birden fazla ID<br>多个 ID</span>` :
-        `<span class="tag tag-bad">ID bulunamadı<br>未识别</span>`;
-
-      return `
-        <div class="config-card" data-config-card="${escapeHtml(admin.localId)}">
-          <div class="config-header">
-            <div>
-              <h4>${escapeHtml(admin.fileName)}</h4>
-              <div class="meta">Admin ID / 管理员 ID / 编号: <span class="mono">${escapeHtml(admin.adminId || 'bulunamadı')}</span></div>
-            </div>
-            ${adminIdStatus}
-          </div>
-
-          <div class="config-grid">
-            <div class="input-group">
-              <div class="label-tr">Admin Adı</div>
-              <div class="label-zh">管理员姓名</div>
-              <input type="text" data-field="adminName" data-admin-id="${escapeHtml(admin.localId)}" value="${escapeHtml(admin.adminName || '')}" placeholder="Karamel" />
-            </div>
-            <div class="input-group">
-              <div class="label-tr">Admin Olduğu Oda ID</div>
-              <div class="label-zh">所属房间 ID</div>
-              <input type="text" data-field="roomId" data-admin-id="${escapeHtml(admin.localId)}" value="${escapeHtml(admin.roomId || '')}" placeholder="1002" />
-            </div>
-          </div>
-
-          <div class="config-grid" style="margin-top:12px;">
-            <div class="input-group">
-              <div class="label-tr">Yayın Başlangıç Saati</div>
-              <div class="label-zh">开播开始时间</div>
-              <select data-field="startTime" data-admin-id="${escapeHtml(admin.localId)}">${timeSelectOptions(admin.startTime || '22:00')}</select>
-            </div>
-            <div class="input-group">
-              <div class="label-tr">Yayın Bitiş Saati</div>
-              <div class="label-zh">开播结束时间</div>
-              <select data-field="endTime" data-admin-id="${escapeHtml(admin.localId)}">${timeSelectOptions(admin.endTime || '24:00')}</select>
-            </div>
-          </div>
-
-          <div class="input-group" style="margin-top:12px;">
-            <div class="label-tr">Haftalık Yayın Planı</div>
-            <div class="label-zh">每周开播计划</div>
-            <div class="weekday-grid">${dayBoxes}</div>
-          </div>
-
-          <div class="config-grid" style="margin-top:12px;">
-            <div class="input-group">
-              <div class="label-tr">İzinli / 请假 Günler</div>
-              <div class="label-zh">请假日期</div>
-              <textarea data-field="leaveDatesText" data-admin-id="${escapeHtml(admin.localId)}" placeholder="2026-03-05
-2026-03-12">${escapeHtml(admin.leaveDatesText || '')}</textarea>
-            </div>
-            <div class="input-group">
-              <div class="label-tr">Yayın Değişikliği Günleri</div>
-              <div class="label-zh">调班日期</div>
-              <textarea data-field="substitutionsText" data-admin-id="${escapeHtml(admin.localId)}" placeholder="2026-03-14|888888888">${escapeHtml(admin.substitutionsText || '')}</textarea>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAdminConfigList() {
-      if (!state.admins.length) {
-        el.adminConfigList.innerHTML = '<div class="muted-box">Dosya yüklenince admin ayar alanı burada oluşur.<br>上传文件后，这里会显示管理员设置区域。</div>';
-        return;
-      }
-
-      if (!state.selectedAdminId || !state.admins.some(a => a.localId === state.selectedAdminId)) {
-        state.selectedAdminId = state.admins[0].localId;
-      }
-
-      const selected = state.admins.find(a => a.localId === state.selectedAdminId) || state.admins[0];
-      const side = state.admins.map(admin => {
-        const active = admin.localId === selected.localId ? 'active' : '';
-        const displayName = admin.adminName?.trim() || admin.fileName;
-        return `
-          <button type="button" class="config-side-item ${active}" data-select-config="${escapeHtml(admin.localId)}">
-            <div class="config-side-name">${escapeHtml(displayName)}</div>
-            <div class="config-side-meta">ID: <span class="mono">${escapeHtml(admin.adminId || '-')}</span></div>
-            <div class="config-side-meta">Dosya / 文件: ${escapeHtml(admin.fileName)}</div>
-          </button>
-        `;
-      }).join('');
-
-      el.adminConfigList.innerHTML = `
-        <div class="config-layout">
-          <div>
-            <div class="config-panel-head">
-              <div>
-                <div class="config-panel-title">Yüklenen Adminler</div>
-                <div class="config-panel-sub">已上传管理员</div>
-              </div>
-              <span class="tag">${state.admins.length} dosya<br>${state.admins.length} 个文件</span>
-            </div>
-            <div class="config-side-list">${side}</div>
-          </div>
-          <div>
-            <div class="config-panel-head">
-              <div>
-                <div class="config-panel-title">Seçili Admin Ayarları</div>
-                <div class="config-panel-sub">当前管理员设置</div>
-              </div>
-            </div>
-            ${buildAdminConfigCard(selected)}
-          </div>
-        </div>
-      `;
-      bindConfigInputs();
-      bindConfigSelectors();
-    }
-
-    function bindConfigSelectors() {
-      el.adminConfigList.querySelectorAll('[data-select-config]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          state.selectedAdminId = e.currentTarget.dataset.selectConfig;
-          renderAdminConfigList();
-          renderMain();
-        });
-      });
-    }
-
-    function bindConfigInputs() {
-      el.adminConfigList.querySelectorAll('[data-field]').forEach(input => {
-        input.addEventListener('input', e => {
-          const admin = state.admins.find(a => a.localId === e.target.dataset.adminId);
-          if (!admin) return;
-          admin[e.target.dataset.field] = e.target.value;
-        });
-      });
-      el.adminConfigList.querySelectorAll('[data-schedule-day]').forEach(input => {
-        input.addEventListener('change', e => {
-          const admin = state.admins.find(a => a.localId === e.target.dataset.adminId);
-          if (!admin) return;
-          admin.schedule[e.target.dataset.scheduleDay] = e.target.checked;
-        });
-      });
-    }
-
-    async function parseExcelFile(file) {
-      const buf = await file.arrayBuffer();
-      const workbook = XLSX.read(buf, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-      const rows = parseRows(json);
-      const extractedAdminIds = [...new Set(rows.map(r => r.adminId))];
-      return {
-        localId: uid('admin'),
-        fileName: file.name,
-        rows,
-        extractedAdminIds,
-        adminId: extractedAdminIds.length === 1 ? extractedAdminIds[0] : '',
-        adminName: '',
-        roomId: '',
-        startTime: '22:00',
-        endTime: '24:00',
-        schedule: defaultSchedule(),
-        leaveDatesText: '',
-        substitutionsText: '',
-      };
-    }
-
-    function applySavedProfiles() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        for (const admin of state.admins) {
-          const key = admin.adminId || admin.fileName;
-          if (!saved[key]) continue;
-          Object.assign(admin, saved[key]);
-        }
-      } catch (err) {
-        console.error(err);
+    function getStatusClass(status){
+      switch(status){
+        case 'Sorunsuz':
+        case 'Temsil ile tamamlandı':
+          return 'status-green';
+        case 'Geç başladı':
+        case 'Erken çıktı':
+        case 'Geç başladı + Erken çıktı':
+        case 'Kesinti var':
+        case 'Başka odada aktif':
+          return 'status-yellow';
+        case 'Hiç gelmedi':
+        case 'Yayına gelmedi, başka odada aktif':
+          return 'status-red';
+        case 'İzinli':
+          return 'status-blue';
+        case 'Yayın değişikliği':
+          return 'status-purple';
+        case 'Plan dışı':
+          return 'status-gray';
+        default:
+          return 'status-gray';
       }
     }
 
-    function saveProfiles() {
-      const out = {};
-      for (const admin of state.admins) {
-        const key = admin.adminId || admin.fileName;
-        out[key] = {
-          adminName: admin.adminName,
-          roomId: admin.roomId,
-          startTime: admin.startTime,
-          endTime: admin.endTime,
-          schedule: admin.schedule,
-          leaveDatesText: admin.leaveDatesText,
-          substitutionsText: admin.substitutionsText,
+    function generateAnalysisForFile(f, globalConfig){
+      const leaveDates = parseDateLines(f.leaveDatesText || '');
+      const substitutionMap = parseSubstitutions(f.substitutionText || '');
+      const targetRoomId = safeString(f.roomId);
+      const baseAdminId = safeString(f.adminId);
+
+      if (!baseAdminId || !targetRoomId) {
+        return {
+          summary: null,
+          dailyRows: [],
+          missButOtherRooms: [],
+          monthlyRows: [],
+          compareRow: null,
+          error: 'Admin ID veya oda ID eksik'
         };
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
-    }
 
-    async function handleFiles(files) {
-      const fileList = [...files || []].slice(0, 30);
-      if (!fileList.length) return;
-      const parsed = [];
-      for (const file of fileList) {
-        parsed.push(await parseExcelFile(file));
-      }
-      state.admins = parsed;
-      applySavedProfiles();
-      state.selectedAdminId = state.admins[0]?.localId || null;
-      state.analyses.clear();
-      renderAdminConfigList();
-      renderMain();
-    }
+      const relevantRows = f.rows.filter(r => r.adminId === baseAdminId || [...substitutionMap.values()].includes(r.adminId));
 
-    function overlapIntervals(rows, start, end) {
-      const out = [];
-      for (const row of rows) {
-        const s = row.startTR < start ? start : row.startTR;
-        const e = row.endTR > end ? end : row.endTR;
-        if (e > s) out.push({ start: s, end: e, roomId: row.roomId });
-      }
-      return out;
-    }
-
-    function buildWindow(dateStr, startTime, endTimeText) {
-      let [sh, sm] = String(startTime || '22:00').split(':').map(Number);
-      let endValue = String(endTimeText || '24:00').trim() || '24:00';
-      let [eh, em] = endValue.split(':').map(Number);
-      const dayStart = DateTime.fromISO(dateStr, { zone: 'Europe/Istanbul' });
-      const start = dayStart.set({ hour: sh || 0, minute: sm || 0, second: 0, millisecond: 0 });
-      let end;
-      if (eh === 24) {
-        end = dayStart.plus({ days: 1 }).startOf('day').plus({ minutes: em || 0 });
-      } else {
-        end = dayStart.set({ hour: eh || 0, minute: em || 0, second: 0, millisecond: 0 });
-        if (end <= start) end = end.plus({ days: 1 });
-      }
-      return { start, end };
-    }
-
-    function analyzeAdmin(admin, opts) {
-      const lateTolerance = Number(opts.lateTolerance || 0);
-      const earlyTolerance = Number(opts.earlyTolerance || 0);
-      const dropThreshold = Number(opts.dropThreshold || 1);
-      const leaveDates = parseLeaveDates(admin.leaveDatesText);
-      const substitutions = parseSubstitutions(admin.substitutionsText);
-      const rows = admin.rows;
-      if (!rows.length) {
-        return { summary: null, daily: [], monthly: [] };
+      if (!relevantRows.length) {
+        return {
+          summary: {
+            planned: 0, onTimeStart: 0, late: 0, early: 0, absent: 0, leave: leaveDates.size, substitution: substitutionMap.size,
+            totalGap: 0, totalOtherRoom: 0
+          },
+          dailyRows: [],
+          missButOtherRooms: [],
+          monthlyRows: [],
+          compareRow: null,
+          error: null
+        };
       }
 
-      const minDate = rows[0].startTR.startOf('day');
-      const maxDate = rows[rows.length - 1].endTR.startOf('day');
-      const daily = [];
+      const minDate = relevantRows[0].startTR.startOf('day');
+      const maxDate = relevantRows[relevantRows.length - 1].endTR.startOf('day');
 
-      for (let dt = minDate; dt <= maxDate; dt = dt.plus({ days: 1 })) {
-        const weekdayKey = weekdayLuxon[dt.weekday - 1];
-        const dateStr = dt.toISODate();
-        const planned = !!admin.schedule?.[weekdayKey];
-        if (!planned) {
-          daily.push({
-            date: dateStr,
-            dayName: dt.setLocale('tr').toFormat('cccc'),
-            monthKey: dt.toFormat('yyyy-MM'),
-            status: 'Plan dışı / 非排班',
-            statusColor: 'tag-blue',
-            planned: false,
-            leave: false,
-            substitution: false,
-            noShow: false,
-            ownMinutes: 0,
-            otherMinutes: 0,
-            otherRoomDetails: [],
+      const dailyRows = [];
+      const missButOtherRooms = [];
+
+      for (let cur = minDate; cur <= maxDate; cur = cur.plus({ days:1 })) {
+        const iso = cur.toISODate();
+        const dayKey = getScheduleDayKey(cur);
+
+        if (!f.weeklySchedule[dayKey]) {
+          dailyRows.push({
+            date: iso,
+            dayTR: cur.setLocale('tr').toFormat('cccc'),
+            status: 'Plan dışı',
+            firstEntry: '-',
+            lastExit: '-',
+            lateMin: 0,
+            earlyMin: 0,
+            gapCount: 0,
+            totalGapMin: 0,
+            otherRoomMin: 0,
+            otherRoomsText: '-',
+            note: '-'
           });
           continue;
         }
 
-        if (leaveDates.has(dateStr)) {
-          daily.push({
-            date: dateStr,
-            dayName: dt.setLocale('tr').toFormat('cccc'),
-            monthKey: dt.toFormat('yyyy-MM'),
-            status: 'İzinli / 请假',
-            statusColor: 'tag-blue',
-            planned: true,
-            leave: true,
-            substitution: false,
-            noShow: false,
-            ownMinutes: 0,
-            otherMinutes: 0,
-            otherRoomDetails: [],
+        if (leaveDates.has(iso)) {
+          dailyRows.push({
+            date: iso,
+            dayTR: cur.setLocale('tr').toFormat('cccc'),
+            status: 'İzinli',
+            firstEntry: '-',
+            lastExit: '-',
+            lateMin: 0,
+            earlyMin: 0,
+            gapCount: 0,
+            totalGapMin: 0,
+            otherRoomMin: 0,
+            otherRoomsText: '-',
+            note: '-'
           });
           continue;
         }
 
-        const sub = substitutions.get(dateStr);
-        const actingAdminId = sub?.substituteAdminId || admin.adminId;
-        const { start, end } = buildWindow(dateStr, admin.startTime, admin.endTime || '24:00');
-        const targetRows = rows.filter(r => r.adminId === actingAdminId && r.endTR > start && r.startTR < end);
-        const ownRaw = overlapIntervals(targetRows.filter(r => String(r.roomId) === String(admin.roomId)), start, end);
-        const ownMerged = mergeIntervals(ownRaw);
-        const otherByRoom = new Map();
-        const otherRaw = overlapIntervals(targetRows.filter(r => String(r.roomId) !== String(admin.roomId)), start, end);
-        for (const seg of otherRaw) {
-          if (!otherByRoom.has(seg.roomId)) otherByRoom.set(seg.roomId, []);
-          otherByRoom.get(seg.roomId).push(seg);
+        const substituteAdminId = substitutionMap.get(iso) || '';
+        const activeAdminId = substituteAdminId || baseAdminId;
+        const isSubstitution = !!substituteAdminId;
+        const schedule = buildScheduleWindow(iso, f.startTime, f.endTime);
+
+        const activeRows = f.rows.filter(r => r.adminId === activeAdminId);
+
+        const selfRoomIntervals = activeRows
+          .filter(r => r.roomId === targetRoomId)
+          .map(r => clipInterval(r.startTR, r.endTR, schedule.start, schedule.end))
+          .filter(Boolean);
+
+        const otherRoomIntervalsRaw = activeRows
+          .filter(r => r.roomId !== targetRoomId)
+          .map(r => {
+            const clipped = clipInterval(r.startTR, r.endTR, schedule.start, schedule.end);
+            return clipped ? { ...clipped, roomId: r.roomId } : null;
+          })
+          .filter(Boolean);
+
+        const mergedSelf = mergeIntervals(selfRoomIntervals);
+        const totalSelfMinutes = mergedSelf.reduce((sum, it) => sum + Math.round((it.end.toMillis() - it.start.toMillis()) / 60000), 0);
+
+        const firstEntry = mergedSelf.length ? mergedSelf[0].start : null;
+        const lastExit = mergedSelf.length ? mergedSelf[mergedSelf.length-1].end : null;
+
+        const otherRoomMap = new Map();
+        let totalOtherRoomMin = 0;
+        for (const item of otherRoomIntervalsRaw) {
+          const mins = Math.round((item.end.toMillis() - item.start.toMillis()) / 60000);
+          totalOtherRoomMin += mins;
+          otherRoomMap.set(item.roomId, (otherRoomMap.get(item.roomId) || 0) + mins);
         }
-        const otherRoomDetails = [...otherByRoom.entries()].map(([roomId, items]) => {
-          const merged = mergeIntervals(items);
-          return { roomId, minutes: Math.round(sumMinutes(merged)), segments: merged };
-        }).sort((a,b)=>b.minutes-a.minutes);
 
-        const ownMinutes = Math.round(sumMinutes(ownMerged));
-        const otherMinutes = otherRoomDetails.reduce((acc, r)=>acc+r.minutes, 0);
-        const firstOwnStart = ownMerged[0]?.start || null;
-        const lastOwnEnd = ownMerged[ownMerged.length - 1]?.end || null;
-        const noShow = ownMerged.length === 0;
-        const startDelay = firstOwnStart ? Math.max(0, firstOwnStart.diff(start, 'minutes').minutes) : null;
-        const earlyLeave = lastOwnEnd ? Math.max(0, end.diff(lastOwnEnd, 'minutes').minutes) : null;
+        const otherRoomsText = [...otherRoomMap.entries()]
+          .map(([room, min]) => `${room}: ${min} dk`)
+          .join(', ') || '-';
 
-        let dropCount = 0;
-        let dropMinutes = 0;
-        let longestDrop = 0;
-        if (ownMerged.length > 1) {
-          for (let i = 0; i < ownMerged.length - 1; i++) {
-            const gap = ownMerged[i + 1].start.diff(ownMerged[i].end, 'minutes').minutes;
-            if (gap >= dropThreshold) {
-              dropCount++;
-              dropMinutes += gap;
-              if (gap > longestDrop) longestDrop = gap;
+        let gapCount = 0;
+        let totalGapMin = 0;
+
+        if (mergedSelf.length > 0) {
+          if (firstEntry > schedule.start) {
+            const mins = Math.round((firstEntry.toMillis() - schedule.start.toMillis()) / 60000);
+            totalGapMin += mins;
+            if (mins >= globalConfig.shortGapThreshold) gapCount++;
+          }
+
+          for (let i=0; i<mergedSelf.length-1; i++) {
+            const gap = Math.round((mergedSelf[i+1].start.toMillis() - mergedSelf[i].end.toMillis()) / 60000);
+            if (gap > 0) {
+              totalGapMin += gap;
+              if (gap >= globalConfig.shortGapThreshold) gapCount++;
             }
+          }
+
+          if (lastExit < schedule.end) {
+            const mins = Math.round((schedule.end.toMillis() - lastExit.toMillis()) / 60000);
+            totalGapMin += mins;
+            if (mins >= globalConfig.shortGapThreshold) gapCount++;
           }
         }
 
-        let status = 'Sorunsuz yayın / 正常开播';
-        let statusColor = 'tag-ok';
+        let lateMin = 0;
+        let earlyMin = 0;
+        if (firstEntry) lateMin = Math.max(0, Math.round((firstEntry.toMillis() - schedule.start.toMillis()) / 60000));
+        if (lastExit) earlyMin = Math.max(0, Math.round((schedule.end.toMillis() - lastExit.toMillis()) / 60000));
 
-        if (sub) {
-          status = 'Yayın değişikliği / 调班';
-          statusColor = 'tag-purple';
-        }
-        if (noShow) {
-          status = otherMinutes > 0 ? 'Gelmedi, başka odada aktif / 未到本房间但在其他房间上麦' : 'Hiç gelmedi / 未到场';
-          statusColor = 'tag-bad';
-        } else if ((startDelay ?? 0) > lateTolerance && (earlyLeave ?? 0) > earlyTolerance) {
-          status = 'Geç başladı / 迟到, erken çıktı / 迟到并提前下播';
-          statusColor = 'tag-warn';
-        } else if ((startDelay ?? 0) > lateTolerance) {
-          status = 'Geç başladı / 迟到';
-          statusColor = 'tag-warn';
-        } else if ((earlyLeave ?? 0) > earlyTolerance) {
-          status = 'Erken çıktı / 提前下播';
-          statusColor = 'tag-warn';
-        }
-        if (!noShow && dropCount > 0 && status === 'Sorunsuz yayın / 正常开播') {
-          status = 'Yayın içi kesinti var / 直播中断';
-          statusColor = 'tag-warn';
-        }
-        if (!noShow && otherMinutes > 0 && status === 'Sorunsuz yayın / 正常开播') {
-          status = 'Başka odada da aktif oldu / 其他房间上麦';
-          statusColor = 'tag-warn';
+        let status = 'Sorunsuz';
+        let note = '-';
+
+        if (!mergedSelf.length) {
+          if (totalOtherRoomMin > 0) {
+            status = 'Yayına gelmedi, başka odada aktif';
+            missButOtherRooms.push({
+              date: iso,
+              adminName: f.adminName || f.fileName,
+              adminId: baseAdminId,
+              roomId: targetRoomId,
+              details: [...otherRoomMap.entries()].map(([room, min]) => ({ room, min })),
+              total: totalOtherRoomMin
+            });
+          } else {
+            status = 'Hiç gelmedi';
+          }
+        } else {
+          const lateFlag = lateMin > globalConfig.lateTolerance;
+          const earlyFlag = earlyMin > globalConfig.earlyTolerance;
+          const gapFlag = gapCount > 0;
+          const otherFlag = totalOtherRoomMin > 0;
+
+          if (lateFlag && earlyFlag) status = 'Geç başladı + Erken çıktı';
+          else if (lateFlag) status = 'Geç başladı';
+          else if (earlyFlag) status = 'Erken çıktı';
+          else if (gapFlag) status = 'Kesinti var';
+          else if (otherFlag) status = 'Başka odada aktif';
+          else status = 'Sorunsuz';
+
+          if (isSubstitution && status === 'Sorunsuz') status = 'Temsil ile tamamlandı';
         }
 
-        daily.push({
-          date: dateStr,
-          dayName: dt.setLocale('tr').toFormat('cccc'),
-          monthKey: dt.toFormat('yyyy-MM'),
-          planned: true,
-          leave: false,
-          substitution: !!sub,
-          substitutionAdminId: sub?.substituteAdminId || null,
+        if (isSubstitution && note === '-') {
+          note = `Temsilci Admin ID: ${substituteAdminId}`;
+        }
+
+        dailyRows.push({
+          date: iso,
+          dayTR: cur.setLocale('tr').toFormat('cccc'),
           status,
-          statusColor,
-          noShow,
-          startScheduled: formatDt(start),
-          endScheduled: formatDt(end),
-          firstOwnStart,
-          lastOwnEnd,
-          startDelay: startDelay == null ? null : Math.round(startDelay),
-          earlyLeave: earlyLeave == null ? null : Math.round(earlyLeave),
-          ownMinutes,
-          otherMinutes,
-          dropCount,
-          dropMinutes: Math.round(dropMinutes),
-          longestDrop: Math.round(longestDrop),
-          otherRoomDetails,
+          firstEntry: firstEntry ? firstEntry.toFormat('HH:mm') : '-',
+          lastExit: lastExit ? lastExit.toFormat('HH:mm') : '-',
+          lateMin,
+          earlyMin,
+          gapCount,
+          totalGapMin,
+          otherRoomMin: totalOtherRoomMin,
+          otherRoomsText,
+          note
         });
       }
 
-      const actionable = daily.filter(d => d.planned);
+      const plannedRows = dailyRows.filter(r => !['Plan dışı','İzinli'].includes(r.status));
       const summary = {
-        plannedDays: actionable.length,
-        leaveDays: actionable.filter(d => d.leave).length,
-        substitutionDays: actionable.filter(d => d.substitution).length,
-        onTimeStarts: actionable.filter(d => !d.leave && !d.noShow && (d.startDelay ?? 0) <= lateTolerance).length,
-        lateCount: actionable.filter(d => !d.leave && !d.noShow && (d.startDelay ?? 0) > lateTolerance).length,
-        earlyCount: actionable.filter(d => !d.leave && !d.noShow && (d.earlyLeave ?? 0) > earlyTolerance).length,
-        noShowCount: actionable.filter(d => !d.leave && d.noShow).length,
-        noShowButOtherRoom: actionable.filter(d => !d.leave && d.noShow && d.otherMinutes > 0).length,
-        totalOwnMinutes: actionable.reduce((acc,d)=>acc+d.ownMinutes,0),
-        totalOtherMinutes: actionable.reduce((acc,d)=>acc+d.otherMinutes,0),
-        totalDropMinutes: actionable.reduce((acc,d)=>acc+(d.dropMinutes || 0),0),
-        totalDropCount: actionable.reduce((acc,d)=>acc+(d.dropCount || 0),0),
+        planned: dailyRows.filter(r => r.status !== 'Plan dışı').length,
+        onTimeStart: dailyRows.filter(r => r.status === 'Sorunsuz' || r.status === 'Temsil ile tamamlandı').length,
+        late: dailyRows.filter(r => ['Geç başladı','Geç başladı + Erken çıktı'].includes(r.status)).length,
+        early: dailyRows.filter(r => ['Erken çıktı','Geç başladı + Erken çıktı'].includes(r.status)).length,
+        absent: dailyRows.filter(r => ['Hiç gelmedi','Yayına gelmedi, başka odada aktif'].includes(r.status)).length,
+        leave: dailyRows.filter(r => r.status === 'İzinli').length,
+        substitution: dailyRows.filter(r => r.note.startsWith('Temsilci')).length,
+        totalGap: dailyRows.reduce((sum, r) => sum + r.totalGapMin, 0),
+        totalOtherRoom: dailyRows.reduce((sum, r) => sum + r.otherRoomMin, 0)
       };
 
       const monthMap = new Map();
-      for (const row of daily) {
-        if (!monthMap.has(row.monthKey)) monthMap.set(row.monthKey, []);
-        monthMap.get(row.monthKey).push(row);
-      }
-      const monthly = [...monthMap.entries()].map(([month, items]) => {
-        const plannedItems = items.filter(i => i.planned);
-        return {
-          month,
-          plannedDays: plannedItems.length,
-          leaveDays: plannedItems.filter(i=>i.leave).length,
-          substitutionDays: plannedItems.filter(i=>i.substitution).length,
-          lateCount: plannedItems.filter(i=>!i.leave && !i.noShow && (i.startDelay ?? 0) > lateTolerance).length,
-          earlyCount: plannedItems.filter(i=>!i.leave && !i.noShow && (i.earlyLeave ?? 0) > earlyTolerance).length,
-          noShowCount: plannedItems.filter(i=>!i.leave && i.noShow).length,
-          noShowButOtherRoom: plannedItems.filter(i=>!i.leave && i.noShow && i.otherMinutes > 0).length,
-          totalDropMinutes: plannedItems.reduce((acc,i)=>acc+(i.dropMinutes || 0),0),
-          totalOtherMinutes: plannedItems.reduce((acc,i)=>acc+(i.otherMinutes || 0),0),
-          onTimeRate: plannedItems.length ? Math.round((plannedItems.filter(i=>!i.leave && !i.noShow && (i.startDelay ?? 0) <= lateTolerance).length / plannedItems.length) * 100) : 0,
-        };
+      dailyRows.forEach(r => {
+        const key = r.date.slice(0,7);
+        if (!monthMap.has(key)) {
+          monthMap.set(key, {
+            month:key, planned:0, leave:0, substitution:0, late:0, early:0, absent:0, gap:0, other:0
+          });
+        }
+        const m = monthMap.get(key);
+        if (r.status !== 'Plan dışı') m.planned++;
+        if (r.status === 'İzinli') m.leave++;
+        if (r.note.startsWith('Temsilci')) m.substitution++;
+        if (['Geç başladı','Geç başladı + Erken çıktı'].includes(r.status)) m.late++;
+        if (['Erken çıktı','Geç başladı + Erken çıktı'].includes(r.status)) m.early++;
+        if (['Hiç gelmedi','Yayına gelmedi, başka odada aktif'].includes(r.status)) m.absent++;
+        m.gap += r.totalGapMin;
+        m.other += r.otherRoomMin;
       });
 
-      return { summary, daily, monthly };
+      const monthlyRows = [...monthMap.values()];
+      const validOperationalDays = dailyRows.filter(r => !['Plan dışı','İzinli'].includes(r.status)).length || 1;
+
+      const compareRow = {
+        adminName: f.adminName || f.fileName,
+        adminId: baseAdminId,
+        roomId: targetRoomId,
+        planned: validOperationalDays,
+        late: summary.late,
+        early: summary.early,
+        absent: summary.absent,
+        totalGap: summary.totalGap,
+        totalOther: summary.totalOtherRoom,
+        wrongRoomAbsentDays: missButOtherRooms.length,
+        onTimeRate: Math.round(((validOperationalDays - summary.late - summary.absent) / validOperationalDays) * 100)
+      };
+
+      return {
+        summary,
+        dailyRows,
+        missButOtherRooms,
+        monthlyRows,
+        compareRow,
+        error: null
+      };
     }
 
-    function allAnalyses() {
-      return state.admins.map(admin => ({ admin, analysis: state.analyses.get(admin.localId) })).filter(x => x.analysis);
-    }
-
-    function renderAdminMenu() {
-      return state.admins.map(admin => {
-        const analysis = state.analyses.get(admin.localId);
-        const summary = analysis?.summary;
-        const active = state.selectedAdminId === admin.localId ? 'active' : '';
-        const tags = analysis ? `
-          <div class="status-row">
-            <span class="tag tag-ok">Planlı / 排班: ${summary.plannedDays}</span>
-            <span class="tag tag-warn">Geç / 迟到: ${summary.lateCount}</span>
-            <span class="tag tag-bad">Gelmedi / 未到: ${summary.noShowCount}</span>
-          </div>` : '<div class="status-row"><span class="tag tag-blue">Analiz bekleniyor / 等待分析</span></div>';
-        return `
-          <div class="admin-card ${active}" data-select-admin="${escapeHtml(admin.localId)}">
-            <h4>${escapeHtml(admin.adminName || admin.fileName)}</h4>
-            <div class="meta">ID / 编号: <span class="mono">${escapeHtml(admin.adminId || 'yok')}</span><br>Oda / 房间: <span class="mono">${escapeHtml(admin.roomId || 'yok')}</span></div>
-            ${tags}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderSummaryCards(admin, summary) {
-      const onTimeRate = summary.plannedDays ? Math.round((summary.onTimeStarts / summary.plannedDays) * 100) : 0;
-      return `
-        <div class="summary-grid">
-          <div class="summary-card"><div class="k">Planlı Yayın Günü<br>计划开播天数</div><div class="v">${summary.plannedDays}</div><div class="s">İzinli / 请假: ${summary.leaveDays} | Değişiklik / 调班: ${summary.substitutionDays}</div></div>
-          <div class="summary-card"><div class="k">Zamanında Başlama<br>准时开播</div><div class="v">%${onTimeRate}</div><div class="s">Geç / 迟到: ${summary.lateCount}</div></div>
-          <div class="summary-card"><div class="k">Hiç Gelmeme<br>未到场</div><div class="v">${summary.noShowCount}</div><div class="s">Başka oda / 其他房间: ${summary.noShowButOtherRoom}</div></div>
-          <div class="summary-card"><div class="k">Toplam Kesinti<br>总中断时长</div><div class="v">${summary.totalDropMinutes}</div><div class="s">Kesinti / 中断: ${summary.totalDropCount}</div></div>
-          <div class="summary-card"><div class="k">Kendi Oda Süresi<br>本房间上麦时长</div><div class="v">${summary.totalOwnMinutes}</div><div class="s">dakika / 分钟</div></div>
-          <div class="summary-card"><div class="k">Başka Oda Süresi<br>其他房间上麦时长</div><div class="v">${summary.totalOtherMinutes}</div><div class="s">dakika / 分钟</div></div>
-          <div class="summary-card"><div class="k">Erken Çıkış<br>提前下播</div><div class="v">${summary.earlyCount}</div><div class="s">gün / 天</div></div>
-          <div class="summary-card"><div class="k">Admin<br>管理员</div><div class="v" style="font-size:20px;">${escapeHtml(admin.adminName || '-')}</div><div class="s">ID: ${escapeHtml(admin.adminId || '-')}</div></div>
-        </div>
-      `;
-    }
-
-    function renderMonthlyTable(monthly) {
-      return `
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h3>Aylık Yayın Performansı</h3>
-              <div class="sub">月度开播表现</div>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Ay</th>
-                <th>Planlı</th>
-                <th>İzinli / 请假</th>
-                <th>Değişiklik</th>
-                <th>Geç</th>
-                <th>Erken</th>
-                <th>Gelmedi</th>
-                <th>Gelmedi ama başka odadaydı</th>
-                <th>Kesinti dk</th>
-                <th>Başka oda dk</th>
-                <th>Zamanında Başlama %</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${monthly.map(m => `
-                <tr>
-                  <td>${escapeHtml(m.month)}</td>
-                  <td>${m.plannedDays}</td>
-                  <td>${m.leaveDays}</td>
-                  <td>${m.substitutionDays}</td>
-                  <td>${m.lateCount}</td>
-                  <td>${m.earlyCount}</td>
-                  <td>${m.noShowCount}</td>
-                  <td>${m.noShowButOtherRoom}</td>
-                  <td>${m.totalDropMinutes}</td>
-                  <td>${m.totalOtherMinutes}</td>
-                  <td>%${m.onTimeRate}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderNoShowOtherRoom(daily) {
-      const rows = daily.filter(d => d.noShow && d.otherMinutes > 0);
-      return `
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h3>Yayına Gelmediği Halde Başka Odada Aktif Olduğu Günler</h3>
-              <div class="sub">未到本房间但在其他房间上麦</div>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tarih<br>日期</th>
-                <th>Durum<br>状态</th>
-                <th>Başka oda süresi<br>其他房间时长</th>
-                <th>Oda detayları<br>房间详情</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.length ? rows.map(r => `
-                <tr>
-                  <td>${escapeHtml(r.date)}</td>
-                  <td>${escapeHtml(r.status)}</td>
-                  <td>${r.otherMinutes} dk</td>
-                  <td>${r.otherRoomDetails.map(x => `Oda / 房间 ${escapeHtml(x.roomId)}: ${x.minutes} dk`).join('<br>')}</td>
-                </tr>`).join('') : '<tr><td colspan="4" class="cell-muted">Kayıt yok / 无记录</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderDailyTable(daily) {
-      return `
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h3>Günlük Detaylar</h3>
-              <div class="sub">每日详细记录</div>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tarih<br>日期</th>
-                <th>Gün<br>星期</th>
-                <th>Durum<br>状态</th>
-                <th>İlk Giriş<br>首次上麦</th>
-                <th>Son Çıkış<br>最后下麦</th>
-                <th>Geç<br>迟到</th>
-                <th>Erken<br>早退</th>
-                <th>Kesinti<br>中断</th>
-                <th>Kendi oda dk<br>本房间分钟</th>
-                <th>Başka oda dk<br>其他房间分钟</th>
-                <th>Detay<br>详情</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${daily.map(r => `
-                <tr>
-                  <td>${escapeHtml(r.date)}</td>
-                  <td>${escapeHtml(r.dayName)}</td>
-                  <td><span class="tag ${r.statusColor || 'tag-blue'}">${escapeHtml(r.status)}</span></td>
-                  <td>${r.firstOwnStart ? escapeHtml(r.firstOwnStart.toFormat('HH:mm')) : '-'}</td>
-                  <td>${r.lastOwnEnd ? escapeHtml(r.lastOwnEnd.toFormat('HH:mm')) : '-'}</td>
-                  <td>${r.startDelay == null ? '-' : `${r.startDelay} dk`}</td>
-                  <td>${r.earlyLeave == null ? '-' : `${r.earlyLeave} dk`}</td>
-                  <td>${r.dropCount || 0} / ${r.dropMinutes || 0} dk</td>
-                  <td>${r.ownMinutes || 0}</td>
-                  <td>${r.otherMinutes || 0}</td>
-                  <td>${r.otherRoomDetails?.length ? r.otherRoomDetails.map(x => `Oda / 房间 ${escapeHtml(x.roomId)}: ${x.minutes} dk`).join('<br>') : '-'}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderDetailView() {
-      if (!state.admins.length) {
-        return `
-          <div class="hero-empty">
-            <div>
-              <h3>Henüz dosya yok</h3>
-              <div class="panel-sub">暂无文件</div>
-            </div>
-          </div>`;
-      }
-
-      const selected = state.admins.find(a => a.localId === state.selectedAdminId) || state.admins[0];
-      if (!selected) return '<div class="hero-empty"><p>Admin bulunamadı / 未找到管理员</p></div>';
-      const analysis = state.analyses.get(selected.localId);
-
-      return `
-        <div class="section" style="padding:14px; margin-bottom:14px;">
-          <div class="section-head">
-            <div>
-              <h3>Admin Listesi</h3>
-              <div class="sub">管理员列表</div>
-            </div>
-          </div>
-          <div class="admin-list" style="max-height: none; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">${renderAdminMenu()}</div>
-        </div>
-        ${!analysis ? `
-          <div class="hero-empty">
-            <div>
-              <h3>Analiz üretilmedi</h3>
-              <div class="panel-sub">尚未分析</div>
-            </div>
-          </div>` : `
-          ${renderSummaryCards(selected, analysis.summary)}
-          ${renderMonthlyTable(analysis.monthly)}
-          ${renderNoShowOtherRoom(analysis.daily)}
-          ${renderDailyTable(analysis.daily)}
-        `}
-      `;
-    }
-
-    function computeDisciplineScore(s) {
-      if (!s || !s.plannedDays) return 0;
-      let score = 100;
-      score -= s.lateCount * 4;
-      score -= s.earlyCount * 3;
-      score -= s.noShowCount * 12;
-      score -= Math.round(s.totalDropMinutes / 10);
-      score -= Math.round(s.totalOtherMinutes / 15);
-      return Math.max(0, score);
-    }
-
-    function renderCompareView() {
-      const items = allAnalyses();
-      if (!items.length) {
-        return '<div class="hero-empty"><div><h3>Karşılaştırma için veri yok</h3><div class="panel-sub">暂无对比数据</div></div></div>';
-      }
-      const rows = items.map(({admin, analysis}) => {
-        const s = analysis.summary;
-        return {
-          name: admin.adminName || admin.fileName,
-          adminId: admin.adminId,
-          roomId: admin.roomId,
-          plannedDays: s.plannedDays,
-          lateCount: s.lateCount,
-          earlyCount: s.earlyCount,
-          noShowCount: s.noShowCount,
-          noShowButOtherRoom: s.noShowButOtherRoom,
-          totalDropMinutes: s.totalDropMinutes,
-          totalOtherMinutes: s.totalOtherMinutes,
-          onTimeRate: s.plannedDays ? Math.round((s.onTimeStarts / s.plannedDays) * 100) : 0,
-          score: computeDisciplineScore(s),
-        };
-      });
-      const best = [...rows].sort((a,b)=>b.score-a.score).slice(0,5);
-      const worstNoShow = [...rows].sort((a,b)=>b.noShowCount-a.noShowCount).slice(0,5);
-      const mostOtherRoom = [...rows].sort((a,b)=>b.totalOtherMinutes-a.totalOtherMinutes).slice(0,5);
-
-      return `
-        <div class="compare-highlight">
-          <div class="highlight-card">
-            <h4>En Yüksek Disiplin Skoru</h4>
-            <div class="small-note">最高纪律评分</div>
-            <ol>${best.map(r => `<li>${escapeHtml(r.name)} <span class="cell-muted">(${r.score})</span></li>`).join('')}</ol>
-          </div>
-          <div class="highlight-card">
-            <h4>En Çok Gelmeyenler</h4>
-            <div class="small-note">未到场最多</div>
-            <ol>${worstNoShow.map(r => `<li>${escapeHtml(r.name)} <span class="cell-muted">(${r.noShowCount} gün / 天)</span></li>`).join('')}</ol>
-          </div>
-          <div class="highlight-card">
-            <h4>En Çok Başka Odaya Çıkanlar</h4>
-            <div class="small-note">其他房间上麦最多</div>
-            <ol>${mostOtherRoom.map(r => `<li>${escapeHtml(r.name)} <span class="cell-muted">(${r.totalOtherMinutes} dk)</span></li>`).join('')}</ol>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h3>Admin Karşılaştırma Tablosu</h3>
-              <div class="sub">管理员对比表</div>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Admin</th>
-                <th>ID</th>
-                <th>Oda</th>
-                <th>Planlı gün / 天</th>
-                <th>Zamanında %</th>
-                <th>Geç</th>
-                <th>Erken</th>
-                <th>Gelmedi</th>
-                <th>Gelmedi ama başka odadaydı</th>
-                <th>Kesinti dk</th>
-                <th>Başka oda dk</th>
-                <th>Skor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.sort((a,b)=>b.score-a.score).map(r => `
-                <tr>
-                  <td>${escapeHtml(r.name)}</td>
-                  <td class="mono">${escapeHtml(r.adminId || '-')}</td>
-                  <td class="mono">${escapeHtml(r.roomId || '-')}</td>
-                  <td>${r.plannedDays}</td>
-                  <td>%${r.onTimeRate}</td>
-                  <td>${r.lateCount}</td>
-                  <td>${r.earlyCount}</td>
-                  <td>${r.noShowCount}</td>
-                  <td>${r.noShowButOtherRoom}</td>
-                  <td>${r.totalDropMinutes}</td>
-                  <td>${r.totalOtherMinutes}</td>
-                  <td><strong>${r.score}</strong></td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderMain() {
-      el.contentArea.innerHTML = state.view === 'compare' ? renderCompareView() : renderDetailView();
-      bindDynamicMainActions();
-      updateTabs();
-    }
-
-    function bindDynamicMainActions() {
-      document.querySelectorAll('[data-select-admin]').forEach(card => {
-        card.addEventListener('click', e => {
-          state.selectedAdminId = e.currentTarget.dataset.selectAdmin;
-          state.view = 'detail';
-          renderMain();
-        });
-      });
-    }
-
-    function updateTabs() {
-      el.tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.view === state.view));
-    }
-
-    function validateAdmins() {
-      const errors = [];
-      for (const admin of state.admins) {
-        if (!admin.adminId) errors.push(`${admin.fileName}: Admin ID okunamadı / 无法读取管理员ID`);
-        if (!admin.adminName?.trim()) errors.push(`${admin.fileName}: Admin adı boş / 管理员姓名为空`);
-        if (!admin.roomId?.trim()) errors.push(`${admin.fileName}: Oda ID boş / 房间ID为空`);
-      }
-      return errors;
-    }
-
-    function runAnalysis() {
-      const errors = validateAdmins();
-      if (errors.length) {
-        alert(errors.join('\n'));
+    function analyzeAll(){
+      if (!appState.files.length) {
+        alert('Önce dosya yükle.\n请先上传文件。');
         return;
       }
-      const opts = {
-        lateTolerance: Number(el.lateTolerance.value || 0),
-        earlyTolerance: Number(el.earlyTolerance.value || 0),
-        dropThreshold: Number(el.dropThreshold.value || 1),
+
+      const globalConfig = {
+        lateTolerance: Number(document.getElementById('lateTolerance').value || 0),
+        earlyTolerance: Number(document.getElementById('earlyTolerance').value || 0),
+        shortGapThreshold: Number(document.getElementById('shortGapThreshold').value || 1)
       };
-      state.analyses.clear();
-      for (const admin of state.admins) {
-        state.analyses.set(admin.localId, analyzeAdmin(admin, opts));
+
+      const compareRows = [];
+
+      for (const f of appState.files) {
+        f.analysis = generateAnalysisForFile(f, globalConfig);
+        if (f.analysis.compareRow) compareRows.push(f.analysis.compareRow);
       }
-      if (!state.selectedAdminId && state.admins[0]) state.selectedAdminId = state.admins[0].localId;
-      renderMain();
+
+      appState.comparisonRows = compareRows;
+      appState.analysisGenerated = true;
+      renderAll();
+      switchTab('detail');
     }
 
-    function clearAll() {
-      state.admins = [];
-      state.selectedAdminId = null;
-      state.analyses.clear();
-      el.fileInput.value = '';
-      renderAdminConfigList();
-      renderMain();
+    function renderAnalysisSection(f){
+      const a = f.analysis;
+      if (a.error) {
+        return `<div class="empty" style="min-height:240px">${escapeHtml(a.error)}</div>`;
+      }
+
+      return `
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-label">Toplam Planlı Gün<br>计划天数</div>
+            <div class="metric-value">${a.summary.planned}</div>
+            <div class="metric-note">İzinli hariç operasyon günleri dahil görünür</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Geç Kalma<br>迟到次数</div>
+            <div class="metric-value">${a.summary.late}</div>
+            <div class="metric-note">Tolerans üstü geç başlangıçlar</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Hiç Gelmeme<br>未到场次数</div>
+            <div class="metric-value">${a.summary.absent}</div>
+            <div class="metric-note">İzinli ve plan dışı hariç</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Başka Oda Süresi<br>其他房间时长</div>
+            <div class="metric-value">${a.summary.totalOtherRoom} dk</div>
+            <div class="metric-note">Yayın penceresi içinde</div>
+          </div>
+        </div>
+
+        <div class="big-card">
+          <h3 class="card-title">Yayına Gelmediği Halde Başka Odada Aktif Olduğu Günler</h3>
+          <p class="card-sub">未到自己直播间但在其他房间上麦的日期</p>
+          ${renderMissOtherRoomsTable(a.missButOtherRooms)}
+        </div>
+
+        <div class="big-card">
+          <h3 class="card-title">Aylık Özet</h3>
+          <p class="card-sub">月度汇总</p>
+          ${renderMonthlyTable(a.monthlyRows)}
+        </div>
+
+        <div class="big-card">
+          <h3 class="card-title">Günlük Detay</h3>
+          <p class="card-sub">每日详细记录</p>
+          ${renderDailyTable(a.dailyRows)}
+        </div>
+      `;
     }
 
+    function renderMissOtherRoomsTable(rows){
+      if (!rows.length) {
+        return '<div class="empty" style="min-height:180px">Kayıt yok<br>无记录</div>';
+      }
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih<span class="zh">日期</span></th>
+                <th>Admin<span class="zh">管理员</span></th>
+                <th>Beklenen Oda<span class="zh">应在房间</span></th>
+                <th>Başka Odalar<span class="zh">其他房间</span></th>
+                <th>Toplam Dakika<span class="zh">总分钟</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td>${escapeHtml(r.date)}</td>
+                  <td>${escapeHtml(r.adminName)}<br>ID: ${escapeHtml(r.adminId)}</td>
+                  <td>${escapeHtml(r.roomId)}</td>
+                  <td>${r.details.map(d => `${escapeHtml(d.room)}: ${d.min} dk`).join('<br>')}</td>
+                  <td>${r.total}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
+    function renderMonthlyTable(rows){
+      if (!rows.length) {
+        return '<div class="empty" style="min-height:180px">Aylık veri yok<br>无月度数据</div>';
+      }
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ay<span class="zh">月份</span></th>
+                <th>Planlı Gün<span class="zh">计划天数</span></th>
+                <th>İzinli<span class="zh">请假</span></th>
+                <th>Temsil<span class="zh">代播</span></th>
+                <th>Geç Kalma<span class="zh">迟到</span></th>
+                <th>Erken Çıkış<span class="zh">提前下播</span></th>
+                <th>Gelmeme<span class="zh">缺席</span></th>
+                <th>Kesinti dk<span class="zh">中断分钟</span></th>
+                <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td>${escapeHtml(r.month)}</td>
+                  <td>${r.planned}</td>
+                  <td>${r.leave}</td>
+                  <td>${r.substitution}</td>
+                  <td>${r.late}</td>
+                  <td>${r.early}</td>
+                  <td>${r.absent}</td>
+                  <td>${r.gap}</td>
+                  <td>${r.other}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
-    el.fileInput.addEventListener('change', async (e) => {
-      await handleFiles(e.target.files);
-    });
-    el.analyzeBtn.addEventListener('click', runAnalysis);
-    el.clearBtn.addEventListener('click', clearAll);
-    el.tabs.forEach(tab => tab.addEventListener('click', () => {
-      state.view = tab.dataset.view;
-      renderMain();
-    }));
+    function renderDailyTable(rows){
+      if (!rows.length) {
+        return '<div class="empty" style="min-height:180px">Günlük veri yok<br>无每日数据</div>';
+      }
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih<span class="zh">日期</span></th>
+                <th>Gün<span class="zh">星期</span></th>
+                <th>Durum<span class="zh">状态</span></th>
+                <th>İlk Giriş<span class="zh">首次上麦</span></th>
+                <th>Son Çıkış<span class="zh">最后下麦</span></th>
+                <th>Geç dk<span class="zh">迟到分钟</span></th>
+                <th>Erken dk<span class="zh">提前分钟</span></th>
+                <th>Kesinti<span class="zh">中断次数</span></th>
+                <th>Kesinti dk<span class="zh">中断分钟</span></th>
+                <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+                <th>Başka Odalar<span class="zh">其他房间</span></th>
+                <th>Not<span class="zh">备注</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td>${escapeHtml(r.date)}</td>
+                  <td>${escapeHtml(r.dayTR)}</td>
+                  <td><span class="status-chip ${getStatusClass(r.status)}">${escapeHtml(r.status)}</span></td>
+                  <td>${escapeHtml(r.firstEntry)}</td>
+                  <td>${escapeHtml(r.lastExit)}</td>
+                  <td>${r.lateMin}</td>
+                  <td>${r.earlyMin}</td>
+                  <td>${r.gapCount}</td>
+                  <td>${r.totalGapMin}</td>
+                  <td>${r.otherRoomMin}</td>
+                  <td>${escapeHtml(r.otherRoomsText)}</td>
+                  <td>${escapeHtml(r.note)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
-    renderAdminConfigList();
-    renderMain();
+    function renderComparison(){
+      if (!appState.analysisGenerated || !appState.comparisonRows.length) {
+        compareContent.className = 'empty';
+        compareContent.innerHTML = 'Karşılaştırma için analiz üret<br>请先生成分析';
+        return;
+      }
+
+      compareContent.className = '';
+      compareContent.innerHTML = `
+        <div class="big-card">
+          <h3 class="card-title">Admin Karşılaştırma Tablosu</h3>
+          <p class="card-sub">管理员对比表</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Admin<span class="zh">管理员</span></th>
+                  <th>ID<span class="zh">编号</span></th>
+                  <th>Oda<span class="zh">房间</span></th>
+                  <th>Planlı Gün<span class="zh">计划天数</span></th>
+                  <th>Geç<span class="zh">迟到</span></th>
+                  <th>Erken<span class="zh">提前下播</span></th>
+                  <th>Gelmeme<span class="zh">缺席</span></th>
+                  <th>Kesinti dk<span class="zh">中断分钟</span></th>
+                  <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+                  <th>Kendi Yayınına Gelmeyip Başka Odada Olduğu Gün<span class="zh">未到自己直播间但在其他房间的天数</span></th>
+                  <th>Zamanında Başlama Oranı<span class="zh">准时率</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${appState.comparisonRows
+                  .sort((a,b) => b.onTimeRate - a.onTimeRate)
+                  .map(r => `
+                    <tr>
+                      <td>${escapeHtml(r.adminName)}</td>
+                      <td>${escapeHtml(r.adminId)}</td>
+                      <td>${escapeHtml(r.roomId)}</td>
+                      <td>${r.planned}</td>
+                      <td>${r.late}</td>
+                      <td>${r.early}</td>
+                      <td>${r.absent}</td>
+                      <td>${r.totalGap}</td>
+                      <td>${r.totalOther}</td>
+                      <td>${r.wrongRoomAbsentDays}</td>
+                      <td>${r.onTimeRate}%</td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str){
+      return String(str ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#39;');
+    }
+
+    function escapeAttr(str){
+      return escapeHtml(str).replaceAll('\n', '&#10;');
+    }
+
+    renderAll();
   </script>
 </body>
 </html>
