@@ -571,6 +571,12 @@
       OFF_PLAN: 'Plan dışı'
     };
 
+    const RISK_LEVEL = {
+      LOW: 'Düşük risk',
+      MEDIUM: 'Orta risk',
+      HIGH: 'Yüksek risk'
+    };
+
     const dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const dayLabels = {
       monday:{tr:'Pzt', zh:'周一'},
@@ -1223,10 +1229,55 @@
       return score;
     }
 
+    function getRiskAssessment(compareRow, summary){
+      const reasons = [];
+      let level = RISK_LEVEL.LOW;
+
+      if (!compareRow || !summary) {
+        return { level: RISK_LEVEL.LOW, reasons:['Veri yok'], reasonText:'Veri yok' };
+      }
+
+      if (summary.absent >= 1) reasons.push('Devamsızlık');
+      if (compareRow.wrongRoomAbsentDays >= 1) reasons.push('Kendi yayını yerine başka odada aktif olma');
+      if (summary.totalGap >= 5) reasons.push('Eşik üstü gerçek kesinti');
+      if (summary.ignoredGap >= 20) reasons.push('Yüksek eşik altı kısa kesinti süresi');
+      if (summary.ignoredGapCount >= 5) reasons.push('Sık kısa kesinti hareketi');
+      if (summary.late >= 3) reasons.push('Tekrarlı geç başlama');
+      if (summary.early >= 3) reasons.push('Tekrarlı erken çıkış');
+      if (summary.totalOtherRoom >= 10) reasons.push('Başka odada uzun süre aktif olma');
+      if (compareRow.riskScore >= 120) reasons.push('Yüksek toplam risk skoru');
+
+      const high = (
+        summary.absent >= 1 ||
+        compareRow.wrongRoomAbsentDays >= 1 ||
+        summary.totalGap >= 5 ||
+        compareRow.riskScore >= 160
+      );
+
+      const medium = (
+        summary.ignoredGap >= 20 ||
+        summary.ignoredGapCount >= 5 ||
+        summary.late >= 3 ||
+        summary.early >= 3 ||
+        summary.totalOtherRoom >= 10 ||
+        compareRow.riskScore >= 120
+      );
+
+      if (high) level = RISK_LEVEL.HIGH;
+      else if (medium) level = RISK_LEVEL.MEDIUM;
+      else level = RISK_LEVEL.LOW;
+
+      const uniqueReasons = [...new Set(reasons)];
+      return {
+        level,
+        reasons: uniqueReasons,
+        reasonText: uniqueReasons.length ? uniqueReasons.join(', ') : 'Belirgin risk sinyali yok'
+      };
+    }
+
     function isRiskyAdmin(analysis){
-      if (!analysis || analysis.error) return false;
-      const s = analysis.summary;
-      return (s.absent > 0) || (s.totalOtherRoom > 0) || (s.ignoredGap >= 10) || (s.ignoredGapCount >= 3) || (s.late > 1) || (s.totalGap > 0);
+      if (!analysis || analysis.error || !analysis.compareRow || !analysis.summary) return false;
+      return getRiskAssessment(analysis.compareRow, analysis.summary).level !== RISK_LEVEL.LOW;
     }
 
     function bindDetailInputs(){
@@ -1637,6 +1688,11 @@
         onTimeRate: Math.max(0, Math.round(((summary.operationalDays - summary.late - summary.absent) / operationalDays) * 100))
       };
 
+      const riskAssessment = getRiskAssessment(compareRow, summary);
+      compareRow.riskLevel = riskAssessment.level;
+      compareRow.riskReasons = riskAssessment.reasons;
+      compareRow.riskReasonText = riskAssessment.reasonText;
+
       return { summary, dailyRows, missButOtherRooms, monthlyRows, compareRow, error:null };
     }
 
@@ -1803,7 +1859,7 @@
         <div class="rank-card">
           <div class="rank-label">En Riskli Admin</div>
           <div class="rank-main">${escapeHtml(worst.adminName)}</div>
-          <div class="rank-sub">Risk skoru: ${worst.riskScore} | Gelmeme: ${worst.absent}</div>
+          <div class="rank-sub">${escapeHtml(worst.riskLevel || '')} | ${escapeHtml(worst.riskReasonText || '')}</div>
         </div>
         <div class="rank-card">
           <div class="rank-label">En Yüksek Başka Oda Süresi</div>
@@ -1842,6 +1898,8 @@
             <th>Kısa Hareket<span class="zh">短动作次数</span></th>
             <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
             <th>Yanlış Oda Gün<span class="zh">错误房间天数</span></th>
+            <th>Risk Seviyesi<span class="zh">风险等级</span></th>
+            <th>Risk Nedeni<span class="zh">风险原因</span></th>
             <th>Risk Skoru<span class="zh">风险分</span></th>
             <th>Zamanında Başlama<span class="zh">准时率</span></th>
           </tr></thead>
@@ -1862,6 +1920,8 @@
                 <td>${r.ignoredGapCount}</td>
                 <td>${r.totalOther}</td>
                 <td>${r.wrongRoomAbsentDays}</td>
+                <td><span class="status-chip ${r.riskLevel === RISK_LEVEL.HIGH ? 's-red' : r.riskLevel === RISK_LEVEL.MEDIUM ? 's-yellow' : 's-green'}">${r.riskLevel}</span></td>
+                <td>${escapeHtml(r.riskReasonText || '-')}</td>
                 <td>${r.riskScore}</td>
                 <td>
                   <div class="progress-wrap">
@@ -1887,7 +1947,242 @@
       }
     }
 
+    function addPdfPageHeader(doc, title, subtitle='') {
+      doc.setFillColor(16, 21, 30);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 46, 'F');
+      doc.setTextColor(245, 247, 251);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(17);
+      doc.text(title, 16, 22);
+      if (subtitle) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(180, 190, 205);
+        doc.text(subtitle, 16, 34);
+      }
+      doc.setTextColor(20, 20, 20);
+    }
+
+    function addPdfSectionTitle(doc, title, y) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(35, 42, 56);
+      doc.text(title, 16, y);
+      return y + 8;
+    }
+
+    function addPdfParagraph(doc, text, x, y, maxWidth, lineHeight = 13) {
+      const lines = doc.splitTextToSize(text, maxWidth);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(60, 68, 82);
+      doc.text(lines, x, y, { baseline: 'top' });
+      return y + lines.length * lineHeight;
+    }
+
+    function addPdfMetricCards(doc, metrics, startY) {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const gap = 10;
+      const marginX = 16;
+      const totalGap = gap * (metrics.length - 1);
+      const cardWidth = (pageWidth - marginX * 2 - totalGap) / metrics.length;
+      const cardHeight = 54;
+
+      metrics.forEach((m, i) => {
+        const x = marginX + i * (cardWidth + gap);
+        doc.setDrawColor(224, 229, 236);
+        doc.setFillColor(248, 250, 253);
+        doc.roundedRect(x, startY, cardWidth, cardHeight, 8, 8, 'FD');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(108, 118, 134);
+        doc.text(String(m.label), x + 10, startY + 14);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(28, 35, 47);
+        doc.text(String(m.value), x + 10, startY + 34);
+        if (m.note) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7.5);
+          doc.setTextColor(130, 138, 150);
+          doc.text(String(m.note), x + 10, startY + 47);
+        }
+      });
+      return startY + cardHeight + 12;
+    }
+
+    function getAdminNarrative(f) {
+      const a = f.analysis;
+      if (!a || a.error) return 'Bu admin için analiz üretilemedi.';
+      const s = a.summary;
+      const ra = getRiskAssessment(a.compareRow, a.summary);
+      const parts = [];
+      parts.push(`${f.adminName || f.fileName} için ${s.operationalDays} operasyon günü analiz edildi.`);
+      parts.push(`Risk seviyesi: ${ra.level}.`);
+      parts.push(`Risk nedeni: ${ra.reasonText}.`);
+      if (s.absent > 0) parts.push(`${s.absent} gün devamsızlık tespit edildi.`);
+      if (s.late > 0) parts.push(`${s.late} kez geç başlama görüldü.`);
+      if (s.early > 0) parts.push(`${s.early} kez erken çıkış görüldü.`);
+      if (s.totalGap > 0) parts.push(`Eşik üstü gerçek kesinti toplamı ${s.totalGap} dakika.`);
+      if (s.ignoredGap > 0) parts.push(`Eşik altı kısa boşluk toplamı ${s.ignoredGap} dakika ve ${s.ignoredGapCount} hareket.`);
+      if (s.totalOtherRoom > 0) parts.push(`Planlı yayın penceresinde başka odalarda geçirilen süre ${s.totalOtherRoom} dakika.`);
+      if (ra.level === RISK_LEVEL.LOW) parts.push('Belirgin operasyonel risk gözlenmedi.');
+      return parts.join(' ');
+    }
+
+    function getExecutiveSummaryText() {
+      const analyzed = appState.files.filter(f => f.analysis && !f.analysis.error);
+      if (!analyzed.length) return 'Analiz edilmiş admin bulunmadığı için yönetici özeti üretilemedi.';
+      const totalOperational = analyzed.reduce((s, f) => s + f.analysis.summary.operationalDays, 0);
+      const totalAbsent = analyzed.reduce((s, f) => s + f.analysis.summary.absent, 0);
+      const totalLate = analyzed.reduce((s, f) => s + f.analysis.summary.late, 0);
+      const totalGap = analyzed.reduce((s, f) => s + f.analysis.summary.totalGap, 0);
+      const totalIgnored = analyzed.reduce((s, f) => s + f.analysis.summary.ignoredGap, 0);
+      const totalOther = analyzed.reduce((s, f) => s + f.analysis.summary.totalOtherRoom, 0);
+      const avgOnTime = Math.round(analyzed.reduce((s, f) => s + f.analysis.compareRow.onTimeRate, 0) / analyzed.length);
+      const riskiest = [...analyzed].sort((a, b) => b.analysis.compareRow.riskScore - a.analysis.compareRow.riskScore)[0];
+      return `${analyzed.length} admin ve toplam ${totalOperational} operasyon günü incelendi. Ortalama zamanında başlama oranı %${avgOnTime}. Toplam devamsızlık ${totalAbsent}, toplam geç başlama ${totalLate}. Eşik üstü gerçek kesinti ${totalGap} dakika, eşik altı kısa boşluk ${totalIgnored} dakika, başka odalarda geçirilen süre ${totalOther} dakika. En yüksek risk skoruna sahip admin ${riskiest.adminName || riskiest.fileName}.`;
+    }
+
+    function addPdfFooter(doc) {
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        doc.setDrawColor(228, 232, 238);
+        doc.line(16, pageHeight - 20, pageWidth - 16, pageHeight - 20);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(125, 132, 144);
+        doc.text('YAVER Admin Takip Sistemi Pro', 16, pageHeight - 8);
+        doc.text(`Sayfa ${i} / ${pageCount}`, pageWidth - 62, pageHeight - 8);
+      }
+    }
+
     function downloadCombinedPdf(){
+      if (!appState.analysisGenerated || !appState.files.some(f => f.analysis && !f.analysis.error)) {
+        alert('Önce analiz üret.');
+        return;
+      }
+
+      const analyzedFiles = appState.files.filter(f => f.analysis && !f.analysis.error);
+      const createdAt = DateTime.now().setZone('Europe/Istanbul').toFormat('dd.MM.yyyy HH:mm');
+      const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
+
+      addPdfPageHeader(doc, 'YAVER Admin Toplu Analiz Raporu', `Olusturma tarihi: ${createdAt}`);
+      let y = 68;
+      y = addPdfSectionTitle(doc, 'Raporun Amaci', y);
+      y = addPdfParagraph(doc, 'Bu rapor, yüklenen admin dosyalarındaki yayın davranışlarını tek bir belgede düzenli şekilde toplar. Amaç, siteye tekrar dönmeden yönetim seviyesinde karar alınabilecek kadar net ve tam bir görünüm sağlamaktır.', 16, y, 790);
+      y += 10;
+      y = addPdfMetricCards(doc, [
+        { label:'Analiz Edilen Admin', value: analyzedFiles.length },
+        { label:'Kayitli Profil', value: countSavedProfiles() },
+        { label:'Rapor Tarihi', value: createdAt.slice(0, 10) },
+        { label:'Rapor Tipi', value:'Detayli PDF' }
+      ], y);
+      y = addPdfSectionTitle(doc, 'Yonetici Ozeti', y);
+      y = addPdfParagraph(doc, getExecutiveSummaryText(), 16, y, 790);
+
+      doc.addPage('a4', 'landscape');
+      addPdfPageHeader(doc, 'Genel Karsilastirma', 'Tum adminlerin karsilastirmali ozet tablosu');
+      let compareStartY = 62;
+      compareStartY = addPdfMetricCards(doc, [
+        { label:'Ortalama Zamaninda Baslama', value: `${Math.round(appState.comparisonRows.reduce((s, r) => s + r.onTimeRate, 0) / appState.comparisonRows.length)}%` },
+        { label:'Toplam Riskli Admin', value: analyzedFiles.filter(f => isRiskyAdmin(f.analysis)).length },
+        { label:'En Yuksek Risk Skoru', value: Math.max(...appState.comparisonRows.map(r => r.riskScore)) },
+        { label:'En Yuksek Baska Oda dk', value: Math.max(...appState.comparisonRows.map(r => r.totalOther)) }
+      ], compareStartY);
+
+      doc.autoTable({
+        startY: compareStartY,
+        head:[[ 'Admin', 'ID', 'Oda', 'Planli', 'Operasyon', 'Gec', 'Erken', 'Gelmeme', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk', 'Yanlis Oda Gun', 'Risk Seviyesi', 'Risk Nedeni', 'Risk Skoru', 'Zamaninda %' ]],
+        body: appState.comparisonRows.slice().sort((a,b) => b.onTimeRate - a.onTimeRate).map(r => [
+          r.adminName, r.adminId, r.roomId, r.plannedDays, r.operationalDays, r.late, r.early, r.absent,
+          r.shortGapDays, r.totalGap, r.ignoredGap, r.ignoredGapCount, r.totalOther, r.wrongRoomAbsentDays, r.riskLevel, r.riskReasonText, r.riskScore, `${r.onTimeRate}%`
+        ]),
+        styles:{ font:'helvetica', fontSize:7, cellPadding:4, overflow:'linebreak' },
+        headStyles:{ fillColor:[28, 35, 47], textColor:[255,255,255] },
+        alternateRowStyles:{ fillColor:[247,249,252] },
+        margin:{ left:16, right:16 }
+      });
+
+      for (const f of analyzedFiles) {
+        const a = f.analysis;
+        const subtitle = `ID: ${f.adminId || '-'} | Oda: ${f.roomId || '-'} | Saat: ${f.startTime} - ${f.endTime}`;
+
+        doc.addPage('a4', 'landscape');
+        addPdfPageHeader(doc, `${f.adminName || f.fileName} - Yonetici Ozeti`, subtitle);
+        let ay = 62;
+        ay = addPdfMetricCards(doc, [
+          { label:'Planli Gun', value: a.summary.plannedDays },
+          { label:'Operasyon Gunu', value: a.summary.operationalDays },
+          { label:'Zamaninda Baslama', value: `${a.compareRow.onTimeRate}%` },
+          { label:'Risk Skoru', value: a.compareRow.riskScore }
+        ], ay);
+        ay = addPdfSectionTitle(doc, 'Kisa Degerlendirme', ay);
+        ay = addPdfParagraph(doc, getAdminNarrative(f), 16, ay, 790);
+        ay += 10;
+        ay = addPdfSectionTitle(doc, 'Temel Ozet Gosterge Tablosu', ay);
+        doc.autoTable({
+          startY: ay,
+          head:[[ 'Planli Gun', 'Operasyon', 'Gec', 'Erken', 'Gelmeme', 'Izinli', 'Temsil', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk', 'Risk Seviyesi', 'Risk Nedeni' ]],
+          body:[[ a.summary.plannedDays, a.summary.operationalDays, a.summary.late, a.summary.early, a.summary.absent, a.summary.leave, a.summary.substitution, a.summary.shortGapDays, a.summary.totalGap, a.summary.ignoredGap, a.summary.ignoredGapCount, a.summary.totalOtherRoom, a.compareRow.riskLevel, a.compareRow.riskReasonText ]],
+          styles:{ font:'helvetica', fontSize:8, cellPadding:4 },
+          headStyles:{ fillColor:[245,196,0], textColor:[17,17,17] },
+          margin:{ left:16, right:16 }
+        });
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 16,
+          head:[[ 'Ay', 'Planli', 'Operasyon', 'Izinli', 'Temsil', 'Gec', 'Erken', 'Gelmeme', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk' ]],
+          body:(a.monthlyRows || []).map(r => [ r.month, r.planned, r.operational, r.leave, r.substitution, r.late, r.early, r.absent, r.shortGapDays, r.gap, r.ignoredGap, r.ignoredGapCount, r.other ]),
+          styles:{ font:'helvetica', fontSize:7.5, cellPadding:4 },
+          headStyles:{ fillColor:[99,168,255], textColor:[255,255,255] },
+          alternateRowStyles:{ fillColor:[247,249,252] },
+          margin:{ left:16, right:16 }
+        });
+
+        if (a.missButOtherRooms && a.missButOtherRooms.length) {
+          doc.addPage('a4', 'landscape');
+          addPdfPageHeader(doc, `${f.adminName || f.fileName} - Yanlis Oda Davranisi`, subtitle);
+          let oy = 62;
+          oy = addPdfSectionTitle(doc, 'Aciklama', oy);
+          oy = addPdfParagraph(doc, 'Asagidaki tablo, adminin kendi yayini yerine baska odalarda aktif oldugu ve bu nedenle operasyonel uyumsuzluk yarattigi gunleri gosterir.', 16, oy, 790);
+          doc.autoTable({
+            startY: oy + 12,
+            head:[[ 'Tarih', 'Admin', 'Beklenen Oda', 'Baska Odalar', 'Toplam dk' ]],
+            body:a.missButOtherRooms.map(r => [ r.date, `${r.adminName} | ${r.adminId}`, r.roomId, r.details.map(d => `${d.room}: ${d.min} dk`).join(' | '), r.total ]),
+            styles:{ font:'helvetica', fontSize:8, cellPadding:4, overflow:'linebreak' },
+            headStyles:{ fillColor:[236,108,97], textColor:[255,255,255] },
+            alternateRowStyles:{ fillColor:[248,250,253] },
+            margin:{ left:16, right:16 }
+          });
+        }
+
+        const dailyRows = a.dailyRows || [];
+        if (dailyRows.length) {
+          doc.addPage('a4', 'landscape');
+          addPdfPageHeader(doc, `${f.adminName || f.fileName} - Gunluk Detay`, subtitle);
+          let dy = 62;
+          dy = addPdfSectionTitle(doc, 'Gunluk Kayit Aciklamasi', dy);
+          dy = addPdfParagraph(doc, 'Bu tablo tarih bazinda ilk giris, son cikis, gecikme, erken cikis, esik ustu kesinti, esik alti kisa bosluklar ve baska odada gecirilen sureleri birlikte gosterir. Siteye donmeden tum detay bu bolumde okunabilir.', 16, dy, 790);
+          doc.autoTable({
+            startY: dy + 12,
+            head:[[ 'Tarih', 'Gun', 'Durum', 'Ilk Giris', 'Son Cikis', 'Gec dk', 'Erken dk', 'Kesinti', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk', 'Baska Odalar', 'Not' ]],
+            body: dailyRows.map(r => [ r.date, r.dayTR, r.status, r.firstEntry, r.lastExit, r.lateMin, r.earlyMin, r.gapCount, r.totalGapMin, r.ignoredGapMin, r.ignoredGapCount, r.otherRoomMin, r.otherRoomsText, r.note ]),
+            styles:{ font:'helvetica', fontSize:6.4, cellPadding:3, overflow:'linebreak' },
+            headStyles:{ fillColor:[182,137,255], textColor:[255,255,255] },
+            alternateRowStyles:{ fillColor:[248,250,253] },
+            margin:{ left:16, right:16 },
+            rowPageBreak:'auto'
+          });
+        }
+      }
+
+      addPdfFooter(doc);
+      doc.save(`YAVER_Toplu_Analiz_${DateTime.now().toFormat('yyyyMMdd_HHmm')}.pdf`);
+    }
       if (!appState.analysisGenerated || !appState.files.some(f => f.analysis && !f.analysis.error)) {
         alert('Önce analiz üret.');
         return;
