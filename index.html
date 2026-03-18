@@ -3,723 +3,572 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAVER Admin Takip Sistemi</title>
+  <title>YAVER Admin Takip Sistemi Pro</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root{
-      --bg:#090909;
-      --panel:#121212;
-      --panel-2:#1a1a1a;
-      --border:#2a2a2a;
-      --text:#f4f4f4;
-      --muted:#b5b5b5;
-      --yellow:#f5c400;
-      --yellow-2:#ffd84d;
-      --danger:#d45d5d;
-      --danger-bg:#331818;
-      --ok:#44c07a;
-      --ok-bg:#123222;
-      --warn:#d9a723;
-      --warn-bg:#342a10;
-      --blue:#56a3ff;
-      --blue-bg:#132538;
-      --purple:#bb7cff;
-      --purple-bg:#2a1936;
-      --shadow:0 12px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --bg:#080a0f;
+      --bg-2:#0d1118;
+      --panel:#10151e;
+      --panel-2:#141b26;
+      --panel-3:#1a2331;
+      --border:#253043;
+      --border-soft:#1d2633;
+      --text:#f2f6fb;
+      --muted:#96a3b7;
+      --muted-2:#6b788d;
+      --amber:#f5c400;
+      --amber-soft:rgba(245,196,0,.12);
+      --green:#39c97a;
+      --green-soft:rgba(57,201,122,.12);
+      --red:#ec6c61;
+      --red-soft:rgba(236,108,97,.12);
+      --blue:#63a8ff;
+      --blue-soft:rgba(99,168,255,.12);
+      --purple:#b689ff;
+      --purple-soft:rgba(182,137,255,.12);
+      --orange:#ffb85b;
+      --orange-soft:rgba(255,184,91,.12);
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --radius-xl:26px;
+      --radius-lg:20px;
+      --radius-md:16px;
+      --radius-sm:12px;
     }
 
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,"Noto Sans SC",sans-serif}
+    html,body{
+      margin:0;
+      padding:0;
+      background:
+        radial-gradient(circle at top right, rgba(245,196,0,.06), transparent 26%),
+        radial-gradient(circle at top left, rgba(99,168,255,.05), transparent 24%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,"Noto Sans SC",sans-serif;
+    }
     body{min-height:100vh}
 
-    .app{
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:20px;
-      padding:20px;
-    }
+    .app-shell{padding:20px;display:flex;flex-direction:column;gap:18px}
+    .topbar{display:grid;grid-template-columns:1.45fr .95fr;gap:18px}
 
-    .sidebar, .main-panel, .panel, .admin-detail-card, .metric-card, .big-card, .admin-item{
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border:1px solid var(--border);
-      border-radius:var(--radius);
+    .panel, .hero, .workspace, .card, .stat-card, .rank-card, .admin-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.022), rgba(255,255,255,.01));
+      border:1px solid var(--border-soft);
+      border-radius:var(--radius-xl);
       box-shadow:var(--shadow);
-    }
-
-    .sidebar{
-      padding:18px;
-      position:sticky;
-      top:20px;
-      height:calc(100vh - 40px);
-      overflow:auto;
-    }
-
-    .main{
-      display:flex;
-      flex-direction:column;
-      gap:18px;
       min-width:0;
     }
 
     .hero{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:20px;
-      padding:18px 22px;
-      background:radial-gradient(circle at right top, rgba(245,196,0,.12), transparent 35%), linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border:1px solid var(--border);
-      border-radius:24px;
-      box-shadow:var(--shadow);
+      padding:22px 24px;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(245,196,0,.14), transparent 28%),
+        radial-gradient(circle at 76% 16%, rgba(99,168,255,.10), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
     }
-
-    .logo-wrap{
-      display:flex;
-      align-items:center;
-      gap:18px;
-      min-width:0;
-    }
-
-    .logo-box{
-      min-width:340px;
-      height:110px;
-      border-radius:22px;
-      background:linear-gradient(180deg,#111,#0d0d0d);
-      border:1px solid rgba(245,196,0,.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:inset 0 0 30px rgba(245,196,0,.06);
-      padding:14px 20px;
-    }
-
-    .logo-svg{
-      width:100%;
-      height:100%;
-    }
-
-    .hero-right{
-      display:flex;
-      align-items:center;
-      justify-content:flex-end;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
+    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .brand-title{margin:0 0 6px;font-size:34px;font-weight:900;letter-spacing:.2px}
+    .brand-sub{margin:0;color:var(--muted);font-size:14px;line-height:1.55;max-width:760px}
+    .pill-row{display:flex;gap:10px;flex-wrap:wrap}
     .pill{
-      border:1px solid rgba(245,196,0,.35);
-      color:var(--yellow);
-      background:rgba(245,196,0,.08);
       padding:10px 14px;
       border-radius:999px;
-      font-size:14px;
-      font-weight:700;
-      text-align:center;
-    }
-
-    .section-title{
-      margin:0 0 4px;
-      font-size:20px;
-      font-weight:800;
-    }
-
-    .section-sub{
-      margin:0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.35;
-    }
-
-    .label{
-      display:block;
-      margin-bottom:10px;
-    }
-
-    .label .tr{
-      display:block;
-      font-size:15px;
-      font-weight:800;
-      margin-bottom:4px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
       color:var(--text);
     }
+    .pill.amber{background:var(--amber-soft);color:var(--amber);border-color:rgba(245,196,0,.18)}
+    .pill.blue{background:var(--blue-soft);color:#bdd8ff;border-color:rgba(99,168,255,.18)}
 
-    .label .zh{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
+    .hero-metrics{margin-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .hero-metric{
+      border:1px solid var(--border);
+      background:rgba(10,14,20,.45);
+      border-radius:20px;
+      padding:16px;
     }
+    .hero-metric .label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
+    .hero-metric .value{font-size:28px;font-weight:900;line-height:1;margin-bottom:6px}
+    .hero-metric .note{font-size:12px;color:var(--muted-2);line-height:1.4}
 
-    input[type="text"],
-    input[type="number"],
-    input[type="time"],
-    select,
-    textarea{
+    .ops-panel{padding:20px}
+    .ops-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+    .section-title{margin:0;font-size:18px;font-weight:900}
+    .section-sub{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+    .status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(57,201,122,.08)}
+
+    .form-grid{display:grid;gap:12px}
+    .form-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+    .form-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .field label{display:block;margin-bottom:8px}
+    .field .tr{display:block;font-size:13px;font-weight:900;margin-bottom:4px}
+    .field .zh{display:block;font-size:11px;color:var(--muted)}
+
+    input[type="text"], input[type="number"], select, textarea{
       width:100%;
       background:var(--panel-2);
       color:var(--text);
       border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px 16px;
-      font-size:16px;
-      outline:none;
-      transition:.2s ease;
-    }
-
-    input:focus, select:focus, textarea:focus{
-      border-color:rgba(245,196,0,.55);
-      box-shadow:0 0 0 3px rgba(245,196,0,.10);
-    }
-
-    textarea{
-      resize:vertical;
-      min-height:120px;
-      line-height:1.45;
-    }
-
-    .small{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .file-input{
-      width:100%;
+      border-radius:16px;
+      padding:13px 14px;
       font-size:14px;
-      color:var(--text);
+      outline:none;
+      transition:.18s ease;
     }
-
-    .grid-3{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:12px;
+    input:focus, select:focus, textarea:focus{
+      border-color:rgba(245,196,0,.42);
+      box-shadow:0 0 0 3px rgba(245,196,0,.08);
     }
+    textarea{min-height:110px;resize:vertical;line-height:1.5}
+    input[type="file"]{width:100%;font-size:13px;color:var(--muted)}
 
-    .grid-2{
-      display:grid;
-      grid-template-columns:repeat(2, 1fr);
-      gap:16px;
-    }
-
-    .btn-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
     button{
       border:none;
       cursor:pointer;
+      border-radius:16px;
+      padding:13px 16px;
+      font-size:14px;
+      font-weight:900;
       transition:.18s ease;
-      font-weight:800;
-      border-radius:18px;
-      padding:14px 18px;
-      font-size:16px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
+    .btn-primary{background:var(--amber);color:#111}
+    .btn-primary:hover{filter:brightness(1.04)}
+    .btn-secondary{background:rgba(255,255,255,.03);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{background:rgba(255,255,255,.05)}
+    .btn-danger{background:var(--red-soft);color:#ffc0ba;border:1px solid rgba(236,108,97,.18)}
+    .btn-danger:hover{background:rgba(236,108,97,.18)}
 
-    .btn-primary{
-      background:var(--yellow);
-      color:#111;
-    }
+    .ops-summary{margin-top:16px;padding:14px;border-radius:18px;background:#0d121a;border:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.6}
 
-    .btn-primary:hover{background:var(--yellow-2)}
-    .btn-secondary{
-      background:transparent;
-      color:var(--yellow);
-      border:1px solid rgba(245,196,0,.45);
-    }
-    .btn-secondary:hover{
-      background:rgba(245,196,0,.09);
-    }
-    .btn-danger{
-      background:var(--danger-bg);
-      color:#ffb8b8;
-      border:1px solid rgba(212,93,93,.45);
-    }
-
-    .tabs{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
+    .workspace{padding:18px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
     .tab{
-      padding:12px 18px;
+      padding:11px 16px;
       border-radius:999px;
-      background:#222;
-      color:#ddd;
-      border:1px solid #333;
-      font-size:15px;
-      font-weight:800;
-    }
-
-    .tab.active{
-      background:var(--yellow);
-      color:#111;
-      border-color:transparent;
-    }
-
-    .main-panel{
-      padding:16px;
-    }
-
-    .layout{
-      display:grid;
-      grid-template-columns: 340px 1fr;
-      gap:16px;
-      min-height:560px;
-    }
-
-    .admin-list-card, .content-card{
-      background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.008));
+      background:rgba(255,255,255,.03);
+      color:#d8e0ee;
       border:1px solid var(--border);
-      border-radius:22px;
-      padding:14px;
-      min-width:0;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
     }
+    .tab.active{background:var(--amber);color:#111;border-color:transparent}
 
-    .admin-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      max-height:720px;
-      overflow:auto;
-      padding-right:4px;
-    }
+    .dashboard-grid{display:grid;grid-template-columns:320px 1fr;gap:16px}
+    .left-stack, .right-stack{display:flex;flex-direction:column;gap:16px;min-width:0}
 
-    .admin-item{
+    .card{padding:16px}
+    .list-head, .table-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .table-title{margin:0;font-size:17px;font-weight:900}
+    .table-sub{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+
+    .admin-list{display:flex;flex-direction:column;gap:10px;max-height:920px;overflow:auto;padding-right:4px}
+    .admin-card{
       padding:14px;
       cursor:pointer;
-      transition:.15s ease;
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border-radius:20px;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008));
+      transition:.16s ease;
     }
-
-    .admin-item.active{
-      border-color:rgba(245,196,0,.75);
-      box-shadow:inset 0 0 0 1px rgba(245,196,0,.18);
-      background:radial-gradient(circle at top right, rgba(245,196,0,.12), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    .admin-card:hover{transform:translateY(-1px);border-color:#34455e}
+    .admin-card.active{
+      border-color:rgba(245,196,0,.52);
+      background:radial-gradient(circle at 100% 0%, rgba(245,196,0,.10), transparent 38%), linear-gradient(180deg, rgba(255,255,255,.024), rgba(255,255,255,.01));
+      box-shadow:inset 0 0 0 1px rgba(245,196,0,.11);
     }
-
-    .admin-item h4{
-      margin:0 0 8px;
-      font-size:18px;
-      line-height:1.2;
-      word-break:break-word;
-    }
-
-    .admin-item .meta{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-      word-break:break-word;
-    }
-
+    .admin-name{margin:0 0 8px;font-size:16px;font-weight:900;line-height:1.3;word-break:break-word}
+    .admin-meta{font-size:12px;color:var(--muted);line-height:1.55}
+    .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .badge{
       display:inline-flex;
       align-items:center;
-      gap:6px;
-      padding:7px 10px;
+      padding:6px 10px;
       border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      margin-top:10px;
-    }
-
-    .badge.ok{background:var(--ok-bg);color:#8cf0b6;border:1px solid rgba(68,192,122,.35)}
-    .badge.warn{background:var(--warn-bg);color:#ffd35d;border:1px solid rgba(217,167,35,.35)}
-    .badge.danger{background:var(--danger-bg);color:#ffb0b0;border:1px solid rgba(212,93,93,.35)}
-    .badge.blue{background:var(--blue-bg);color:#9cc7ff;border:1px solid rgba(86,163,255,.35)}
-    .badge.purple{background:var(--purple-bg);color:#dbb6ff;border:1px solid rgba(187,124,255,.35)}
-
-    .content-card{
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      min-width:0;
-    }
-
-    .admin-detail-card{
-      padding:18px;
-    }
-
-    .admin-detail-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:14px;
-      flex-wrap:wrap;
-    }
-
-    .admin-detail-top h3{
-      margin:0 0 6px;
-      font-size:26px;
-      word-break:break-word;
-    }
-
-    .inline-meta{
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.5;
-    }
-
-    .weekly-grid{
-      display:grid;
-      grid-template-columns:repeat(7, 1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-
-    .day-box{
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:10px 8px;
-      text-align:center;
-      background:var(--panel-2);
-    }
-
-    .day-box input{
-      width:18px;
-      height:18px;
-      accent-color:var(--yellow);
-      margin-bottom:8px;
-    }
-
-    .day-box .tr{
-      display:block;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-
-    .day-box .zh{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .metrics{
-      display:grid;
-      grid-template-columns:repeat(4, 1fr);
-      gap:12px;
-    }
-
-    .metric-card{
-      padding:16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008));
-    }
-
-    .metric-label{
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:8px;
-      line-height:1.4;
-    }
-
-    .metric-value{
-      font-size:28px;
+      font-size:11px;
       font-weight:900;
-      line-height:1.05;
-      margin-bottom:6px;
-      word-break:break-word;
+      border:1px solid transparent;
     }
+    .badge.amber{background:var(--amber-soft);color:var(--amber);border-color:rgba(245,196,0,.18)}
+    .badge.green{background:var(--green-soft);color:#9af0bf;border-color:rgba(57,201,122,.18)}
+    .badge.red{background:var(--red-soft);color:#ffbbb4;border-color:rgba(236,108,97,.18)}
+    .badge.blue{background:var(--blue-soft);color:#c0daff;border-color:rgba(99,168,255,.18)}
+    .badge.purple{background:var(--purple-soft);color:#dfcbff;border-color:rgba(182,137,255,.18)}
+    .badge.gray{background:rgba(255,255,255,.04);color:#d5ddea;border-color:rgba(255,255,255,.08)}
 
-    .metric-note{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.35;
-    }
-
-    .big-card{
+    .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    .stat-card{
       padding:16px;
-      min-width:0;
-      overflow:hidden;
-    }
-
-    .card-title{
-      margin:0 0 4px;
-      font-size:18px;
-      font-weight:900;
-    }
-
-    .card-sub{
-      margin:0 0 14px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .table-wrap{
-      overflow:auto;
+      border-radius:20px;
       border:1px solid var(--border);
-      border-radius:18px;
+      background:rgba(10,14,20,.42);
     }
+    .stat-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+    .stat-label{font-size:12px;color:var(--muted);line-height:1.35}
+    .stat-icon{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900}
+    .icon-amber{background:var(--amber-soft);color:var(--amber)}
+    .icon-green{background:var(--green-soft);color:#98efbc}
+    .icon-red{background:var(--red-soft);color:#ffbdb6}
+    .icon-blue{background:var(--blue-soft);color:#c0daff}
+    .icon-purple{background:var(--purple-soft);color:#dfcbff}
+    .icon-orange{background:var(--orange-soft);color:#ffd095}
+    .stat-value{font-size:30px;font-weight:900;line-height:1;margin-bottom:8px}
+    .stat-foot{font-size:11px;color:var(--muted-2);line-height:1.4}
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:920px;
-      background:#111;
-    }
+    .leaderboard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .rank-card{padding:16px;border-radius:20px;border:1px solid var(--border);background:rgba(10,14,20,.4)}
+    .rank-label{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .rank-main{font-size:16px;font-weight:900;line-height:1.35;margin-bottom:8px;word-break:break-word}
+    .rank-sub{font-size:12px;color:var(--muted);line-height:1.5}
 
+    .detail-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
+    .detail-block{padding:16px;border:1px solid var(--border);border-radius:20px;background:rgba(10,14,20,.35);min-width:0}
+    .profile-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .profile-title{margin:0;font-size:28px;font-weight:900;line-height:1.15}
+    .profile-sub{margin-top:8px;font-size:13px;color:var(--muted);line-height:1.6}
+
+    .schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:10px}
+    .day-chip{border:1px solid var(--border);border-radius:16px;padding:10px 8px;text-align:center;background:var(--panel-2)}
+    .day-chip input{width:18px;height:18px;accent-color:var(--amber);margin-bottom:8px}
+    .day-chip .tr{display:block;font-size:12px;font-weight:900;margin-bottom:4px}
+    .day-chip .zh{display:block;font-size:11px;color:var(--muted)}
+
+    .remember-box{margin-top:16px;padding:14px;border-radius:18px;background:#0e131b;border:1px solid rgba(245,196,0,.16)}
+    .remember-box label{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+    .remember-box input{width:18px;height:18px;accent-color:var(--amber);margin-top:2px}
+    .remember-title{font-size:14px;font-weight:900;line-height:1.4}
+    .remember-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}
+
+    .filter-row{display:grid;grid-template-columns:1.4fr .8fr .8fr .8fr;gap:12px}
+
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:18px;background:#0d1219}
+    table{width:100%;border-collapse:collapse;min-width:1100px;background:#0e131a}
     thead th{
       position:sticky;
       top:0;
-      z-index:1;
-      background:#181818;
-      color:#f7f7f7;
-      font-size:13px;
+      z-index:2;
+      background:#131a24;
+      color:#edf3fb;
+      font-size:12px;
       text-align:left;
-      padding:12px 12px;
+      padding:12px;
       border-bottom:1px solid var(--border);
       vertical-align:bottom;
       line-height:1.35;
     }
-
-    thead th .zh{
-      display:block;
-      color:var(--muted);
-      font-size:11px;
-      font-weight:500;
-      margin-top:4px;
-    }
-
-    tbody td{
-      padding:12px 12px;
-      border-bottom:1px solid #222;
-      vertical-align:top;
-      font-size:14px;
-      line-height:1.45;
-    }
-
-    tbody tr:hover{
-      background:#171717;
-    }
+    thead th .zh{display:block;color:var(--muted);font-size:10px;font-weight:500;margin-top:4px}
+    tbody td{padding:12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;line-height:1.45;vertical-align:top}
+    tbody tr:hover{background:#131b25}
 
     .status-chip{
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
       padding:6px 10px;
       border-radius:999px;
-      font-size:12px;
-      font-weight:800;
+      font-size:11px;
+      font-weight:900;
+      border:1px solid transparent;
       white-space:nowrap;
     }
+    .s-green{background:var(--green-soft);color:#95ebb8;border-color:rgba(57,201,122,.18)}
+    .s-yellow{background:var(--orange-soft);color:#ffd59d;border-color:rgba(255,184,91,.18)}
+    .s-red{background:var(--red-soft);color:#ffbbb5;border-color:rgba(236,108,97,.18)}
+    .s-blue{background:var(--blue-soft);color:#bed8ff;border-color:rgba(99,168,255,.18)}
+    .s-purple{background:var(--purple-soft);color:#dfcbff;border-color:rgba(182,137,255,.18)}
+    .s-gray{background:rgba(255,255,255,.04);color:#d7dfeb;border-color:rgba(255,255,255,.08)}
 
-    .status-green{background:var(--ok-bg);color:#8cf0b6;border:1px solid rgba(68,192,122,.35)}
-    .status-yellow{background:var(--warn-bg);color:#ffd35d;border:1px solid rgba(217,167,35,.35)}
-    .status-red{background:var(--danger-bg);color:#ffb0b0;border:1px solid rgba(212,93,93,.35)}
-    .status-blue{background:var(--blue-bg);color:#9cc7ff;border:1px solid rgba(86,163,255,.35)}
-    .status-purple{background:var(--purple-bg);color:#dbb6ff;border:1px solid rgba(187,124,255,.35)}
-    .status-gray{background:#232323;color:#ddd;border:1px solid #3b3b3b}
+    .progress-wrap{display:flex;align-items:center;gap:10px;min-width:180px}
+    .progress{flex:1;height:10px;border-radius:999px;background:#1a2230;overflow:hidden;border:1px solid #263245}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg, #e8b600, #ffd84d)}
+    .progress-text{font-size:12px;font-weight:900;color:#eef2f7;min-width:38px;text-align:right}
 
     .empty{
-      min-height:420px;
+      min-height:280px;
+      border:1px dashed var(--border);
+      border-radius:24px;
       display:flex;
       align-items:center;
       justify-content:center;
       text-align:center;
-      padding:30px;
-      border:1px dashed #2e2e2e;
-      border-radius:24px;
+      padding:28px;
       color:var(--muted);
-      font-size:18px;
+      font-size:16px;
       line-height:1.7;
+      background:rgba(255,255,255,.015);
     }
-
-    .footer-note{
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-      padding:6px 0 2px;
-      line-height:1.4;
-    }
-
     .hidden{display:none !important}
+    .footer-note{text-align:center;color:var(--muted-2);font-size:11px;padding-top:4px}
 
-    @media (max-width: 1280px){
-      .metrics{grid-template-columns:repeat(2,1fr)}
-      .layout{grid-template-columns: 300px 1fr}
+    @media (max-width:1450px){
+      .hero-metrics{grid-template-columns:repeat(2,1fr)}
+      .kpi-grid{grid-template-columns:repeat(3,1fr)}
+      .leaderboard{grid-template-columns:repeat(2,1fr)}
+      .detail-grid{grid-template-columns:1fr}
+      .filter-row{grid-template-columns:1fr 1fr}
     }
-
-    @media (max-width: 980px){
-      .app{grid-template-columns:1fr}
-      .sidebar{position:static;height:auto}
-      .layout{grid-template-columns:1fr}
-      .grid-3{grid-template-columns:1fr}
-      .grid-2{grid-template-columns:1fr}
-      .metrics{grid-template-columns:1fr}
-      .weekly-grid{grid-template-columns:repeat(4, 1fr)}
-      .logo-box{min-width:unset;width:100%;max-width:420px}
-      .hero{flex-direction:column;align-items:flex-start}
+    @media (max-width:1150px){
+      .topbar{grid-template-columns:1fr}
+      .dashboard-grid{grid-template-columns:1fr}
     }
-
-    @media (max-width: 640px){
-      .weekly-grid{grid-template-columns:repeat(2, 1fr)}
-      .app{padding:12px}
-      .sidebar,.main-panel,.hero{border-radius:18px}
-      .metric-value{font-size:24px}
-      .admin-detail-top h3{font-size:22px}
+    @media (max-width:820px){
+      .app-shell{padding:12px}
+      .hero-metrics,.kpi-grid,.form-grid.cols-2,.form-grid.cols-3,.filter-row{grid-template-columns:1fr}
+      .schedule-grid{grid-template-columns:repeat(2,1fr)}
+      .leaderboard{grid-template-columns:1fr}
+      .profile-title{font-size:24px}
+      .brand-title{font-size:28px}
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="panel">
-        <h2 class="section-title">Veri Yükleme</h2>
-        <p class="section-sub">上传数据</p>
-
-        <div style="height:14px"></div>
-
-        <label class="label">
-          <span class="tr">Excel Dosyaları</span>
-          <span class="zh">Excel 文件</span>
-        </label>
-        <input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" multiple />
-        <div class="small" style="margin-top:8px">En fazla 30 dosya<br>最多 30 个文件</div>
-
-        <div style="height:16px"></div>
-
-        <div class="grid-3">
+  <div class="app-shell">
+    <section class="topbar">
+      <div class="hero">
+        <div class="hero-top">
           <div>
-            <label class="label">
-              <span class="tr">Geç Kalma Toleransı (dk)</span>
-              <span class="zh">迟到容差（分钟）</span>
+            <h1 class="brand-title">YAVER Admin Takip Sistemi Pro</h1>
+            <p class="brand-sub">
+              Çoklu admin dosya analizi, profil hafızası, kısa kesinti suistimal takibi, toplu PDF raporlama ve risk odaklı operasyon ekranı.
+              <br>多管理员分析、档案记忆、短时中断识别、汇总 PDF 报告与风险导向管理面板。
+            </p>
+          </div>
+          <div class="pill-row">
+            <div class="pill amber">UTC → Türkiye Saati</div>
+            <div class="pill blue">Pro Dashboard</div>
+            <div class="pill">Tek Bilgisayar Profil Hafızası</div>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          <div class="hero-metric">
+            <span class="label">Yüklenen Adminler</span>
+            <div class="value" id="heroAdminCount">0</div>
+            <div class="note">Aktif dosya sayısı</div>
+          </div>
+          <div class="hero-metric">
+            <span class="label">Kayıtlı Profiller</span>
+            <div class="value" id="heroSavedProfiles">0</div>
+            <div class="note">Bu bilgisayarda saklanan admin bilgileri</div>
+          </div>
+          <div class="hero-metric">
+            <span class="label">Analiz Hazır</span>
+            <div class="value" id="heroAnalyzedCount">0</div>
+            <div class="note">Raporu üretilmiş adminler</div>
+          </div>
+          <div class="hero-metric">
+            <span class="label">Riskli Admin</span>
+            <div class="value" id="heroRiskCount">0</div>
+            <div class="note">Devamsızlık, yanlış oda veya yoğun sapma içerenler</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel ops-panel">
+        <div class="ops-head">
+          <div>
+            <h2 class="section-title">Operasyon Kontrol Paneli</h2>
+            <p class="section-sub">上传、匹配、分析、导出</p>
+          </div>
+          <div class="status-dot"></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>
+              <span class="tr">Excel Dosyaları</span>
+              <span class="zh">Excel 文件</span>
             </label>
+            <input id="fileInput" type="file" accept=".xlsx,.xls" multiple />
+          </div>
+        </div>
+
+        <div class="form-grid cols-3" style="margin-top:12px">
+          <div class="field">
+            <label><span class="tr">Geç Kalma Toleransı</span><span class="zh">迟到容差</span></label>
             <input id="lateTolerance" type="number" min="0" value="0" />
           </div>
-          <div>
-            <label class="label">
-              <span class="tr">Erken Çıkış Toleransı (dk)</span>
-              <span class="zh">提前下播容差（分钟）</span>
-            </label>
+          <div class="field">
+            <label><span class="tr">Erken Çıkış Toleransı</span><span class="zh">提前下播容差</span></label>
             <input id="earlyTolerance" type="number" min="0" value="0" />
           </div>
-          <div>
-            <label class="label">
-              <span class="tr">Kısa Kesinti Eşiği (dk)</span>
-              <span class="zh">短暂中断阈值（分钟）</span>
-            </label>
-            <input id="shortGapThreshold" type="number" min="0" value="1" />
+          <div class="field">
+            <label><span class="tr">Kesinti Eşiği</span><span class="zh">中断阈值</span></label>
+            <input id="shortGapThreshold" type="number" min="0" value="5" />
+          </div>
+        </div>
+
+        <div class="form-grid cols-2" style="margin-top:12px">
+          <div class="field">
+            <label><span class="tr">Varsayılan Başlangıç</span><span class="zh">默认开始时间</span></label>
+            <select id="defaultStartTime"></select>
+          </div>
+          <div class="field">
+            <label><span class="tr">Varsayılan Bitiş</span><span class="zh">默认结束时间</span></label>
+            <select id="defaultEndTime"></select>
           </div>
         </div>
 
         <div class="btn-row">
-          <button id="analyzeBtn" class="btn-primary">Analizi Başlat<br><span style="font-size:12px;font-weight:700">开始分析</span></button>
-          <button id="clearBtn" class="btn-danger">Temizle<br><span style="font-size:12px;font-weight:700">清空</span></button>
+          <button id="analyzeBtn" class="btn-primary">Analizi Başlat</button>
+          <button id="downloadPdfBtn" class="btn-secondary">Toplu PDF İndir</button>
+          <button id="clearBtn" class="btn-danger">Temizle</button>
         </div>
 
-        <div style="height:16px"></div>
+        <div class="ops-summary" id="sidebarAdminSummary">Henüz dosya yok</div>
+      </aside>
+    </section>
 
-        <div class="panel" style="padding:14px;border-radius:18px;background:#12100a;border-color:rgba(245,196,0,.16)">
-          <label class="label">
-            <span class="tr">Yüklenen Adminler</span>
-            <span class="zh">已上传管理员</span>
-          </label>
-          <div id="sidebarAdminSummary" class="small">Henüz dosya yok<br>暂无文件</div>
-        </div>
-      </div>
-    </aside>
-
-    <main class="main">
-      <section class="hero">
-        <div class="logo-wrap">
-          <div class="logo-box">
-            <svg class="logo-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" aria-label="YAVER Logo">
-              <defs>
-                <linearGradient id="yaverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#f1c400"/>
-                  <stop offset="50%" stop-color="#ffd84d"/>
-                  <stop offset="100%" stop-color="#e7b800"/>
-                </linearGradient>
-                <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="6" result="blur"/>
-                  <feMerge>
-                    <feMergeNode in="blur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-
-              <g filter="url(#softGlow)">
-                <text x="26" y="150"
-                      font-size="118"
-                      font-weight="900"
-                      font-family="Inter, Segoe UI, Arial, sans-serif"
-                      fill="url(#yaverGrad)">YAVER</text>
-              </g>
-
-              <text x="430" y="102"
-                    font-size="64"
-                    font-weight="850"
-                    font-family="Inter, Segoe UI, Arial, sans-serif"
-                    fill="#f4f4f4">Admin Takip</text>
-              <text x="430" y="172"
-                    font-size="64"
-                    font-weight="850"
-                    font-family="Inter, Segoe UI, Arial, sans-serif"
-                    fill="#f4f4f4">Sistemi</text>
-              <text x="436" y="228"
-                    font-size="36"
-                    font-weight="700"
-                    font-family="Noto Sans SC, Microsoft YaHei, Arial, sans-serif"
-                    fill="#bdbdbd">管理员追踪系统</text>
-            </svg>
-          </div>
-        </div>
-
-        <div class="hero-right">
-          <div class="pill">UTC → Türkiye Saati<br>UTC → 土耳其时间</div>
-          <div class="pill">Çoklu Admin Analizi<br>多管理员分析</div>
-        </div>
-      </section>
-
+    <section class="panel workspace">
       <div class="tabs">
-        <button class="tab active" id="tabDetail">Admin Detayı<br><span style="font-size:11px;font-weight:700">管理员详情</span></button>
-        <button class="tab" id="tabCompare">Karşılaştırma<br><span style="font-size:11px;font-weight:700">对比</span></button>
+        <button class="tab active" id="tabDetail">Admin Detayı</button>
+        <button class="tab" id="tabCompare">Karşılaştırma</button>
       </div>
 
-      <section class="main-panel">
-        <div id="detailView" class="layout">
-          <div class="admin-list-card">
-            <h3 class="card-title">Admin Listesi</h3>
-            <p class="card-sub">管理员列表</p>
+      <div id="detailView" class="dashboard-grid">
+        <div class="left-stack">
+          <section class="card">
+            <div class="list-head">
+              <div>
+                <h3 class="section-title">Admin Listesi</h3>
+                <p class="section-sub">管理员列表</p>
+              </div>
+              <span class="badge gray" id="adminListCountBadge">0 kayıt</span>
+            </div>
+            <div style="margin-bottom:12px">
+              <input type="text" id="adminSearchInput" placeholder="Admin ara / 搜索管理员" />
+            </div>
             <div id="adminList" class="admin-list"></div>
-          </div>
+          </section>
+        </div>
 
-          <div class="content-card">
-            <div id="detailContent" class="empty">
-              Henüz dosya yok<br>暂无文件
+        <div class="right-stack">
+          <section class="card">
+            <div class="table-head">
+              <div>
+                <h3 class="table-title">Yönetici Özeti</h3>
+                <p class="table-sub">Üst düzey operasyon göstergeleri</p>
+              </div>
             </div>
-          </div>
-        </div>
+            <div class="kpi-grid" id="globalKpiGrid"></div>
+          </section>
 
-        <div id="compareView" class="hidden">
-          <div class="content-card">
-            <div id="compareContent" class="empty">
-              Karşılaştırma için analiz üret<br>请先生成分析
+          <section class="card">
+            <div class="table-head">
+              <div>
+                <h3 class="table-title">Günlük Kayıt Filtresi</h3>
+                <p class="table-sub">Riskli günleri ve özel durumları süz</p>
+              </div>
             </div>
-          </div>
-        </div>
+            <div class="filter-row">
+              <div class="field">
+                <label><span class="tr">Metin Ara</span><span class="zh">关键词搜索</span></label>
+                <input type="text" id="dailySearchInput" placeholder="Tarih, not, oda, durum..." />
+              </div>
+              <div class="field">
+                <label><span class="tr">Durum Filtresi</span><span class="zh">状态筛选</span></label>
+                <select id="dailyStatusFilter">
+                  <option value="all">Tümü</option>
+                  <option value="risk">Sadece riskli</option>
+                  <option value="Sorunsuz">Sorunsuz</option>
+                  <option value="Temsil ile tamamlandı">Temsil ile tamamlandı</option>
+                  <option value="Geç başladı">Geç başladı</option>
+                  <option value="Erken çıktı">Erken çıktı</option>
+                  <option value="Geç başladı + Erken çıktı">Geç başladı + Erken çıktı</option>
+                  <option value="Kesinti var">Kesinti var</option>
+                  <option value="Sık kısa kesinti">Sık kısa kesinti</option>
+                  <option value="Başka odada aktif">Başka odada aktif</option>
+                  <option value="Hiç gelmedi">Hiç gelmedi</option>
+                  <option value="Yayına gelmedi, başka odada aktif">Yayına gelmedi, başka odada aktif</option>
+                  <option value="İzinli">İzinli</option>
+                  <option value="Plan dışı">Plan dışı</option>
+                </select>
+              </div>
+              <div class="field">
+                <label><span class="tr">Sıralama</span><span class="zh">排序</span></label>
+                <select id="dailySortFilter">
+                  <option value="dateAsc">Tarih artan</option>
+                  <option value="dateDesc">Tarih azalan</option>
+                  <option value="riskDesc">Risk ağırlıklı</option>
+                </select>
+              </div>
+              <div class="field">
+                <label><span class="tr">Sadece Sapma</span><span class="zh">仅异常</span></label>
+                <select id="dailyDeviationFilter">
+                  <option value="all">Tümü</option>
+                  <option value="yes">Sadece sapma olan</option>
+                  <option value="no">Sapma olmayan</option>
+                </select>
+              </div>
+            </div>
+          </section>
 
-        <div class="footer-note">
-          YAVER Admin Takip Sistemi<br>
-          管理员追踪系统
+          <div id="detailContent" class="empty">Henüz dosya yok</div>
         </div>
-      </section>
-    </main>
+      </div>
+
+      <div id="compareView" class="hidden">
+        <div class="right-stack">
+          <section class="card">
+            <div class="table-head">
+              <div>
+                <h3 class="table-title">Karşılaştırma Özeti</h3>
+                <p class="table-sub">En iyi, en riskli ve en problemli davranışları üstten gör</p>
+              </div>
+            </div>
+            <div class="leaderboard" id="leaderboardWrap"></div>
+          </section>
+
+          <section class="card">
+            <div class="table-head">
+              <div>
+                <h3 class="table-title">Admin Karşılaştırma Tablosu</h3>
+                <p class="table-sub">准时率、缺席、短中断、错误房间行为对比</p>
+              </div>
+              <div class="progress-wrap" id="globalAverageWrap"></div>
+            </div>
+            <div id="compareContent" class="empty">Karşılaştırma için analiz üret</div>
+          </section>
+        </div>
+      </div>
+
+      <div class="footer-note">YAVER Pro Dashboard</div>
+    </section>
   </div>
 
   <script>
     const { DateTime } = luxon;
+    const { jsPDF } = window.jspdf;
 
-    const appState = {
-      files: [],
-      selectedIndex: null,
-      analysisGenerated: false,
-      comparisonRows: []
+    const ADMIN_PROFILE_KEY = 'yaver_admin_profiles_v4';
+    const GLOBAL_SETTINGS_KEY = 'yaver_global_settings_v1';
+
+    const STATUS = {
+      CLEAN: 'Sorunsuz',
+      SUBSTITUTE_OK: 'Temsil ile tamamlandı',
+      LATE: 'Geç başladı',
+      EARLY: 'Erken çıktı',
+      LATE_EARLY: 'Geç başladı + Erken çıktı',
+      GAP: 'Kesinti var',
+      SHORT_GAP: 'Sık kısa kesinti',
+      OTHER_ROOM: 'Başka odada aktif',
+      ABSENT: 'Hiç gelmedi',
+      ABSENT_OTHER_ROOM: 'Yayına gelmedi, başka odada aktif',
+      LEAVE: 'İzinli',
+      OFF_PLAN: 'Plan dışı'
     };
 
     const dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -730,28 +579,50 @@
       thursday:{tr:'Per', zh:'周四'},
       friday:{tr:'Cum', zh:'周五'},
       saturday:{tr:'Cmt', zh:'周六'},
-      sunday:{tr:'Paz', zh:'周日'},
+      sunday:{tr:'Paz', zh:'周日'}
+    };
+
+    const appState = {
+      files: [],
+      selectedIndex: null,
+      analysisGenerated: false,
+      comparisonRows: [],
+      adminSearch: '',
+      dailySearch: '',
+      dailyStatus: 'all',
+      dailySort: 'dateAsc',
+      dailyDeviation: 'all'
     };
 
     const fileInput = document.getElementById('fileInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const clearBtn = document.getElementById('clearBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     const adminListEl = document.getElementById('adminList');
     const detailContent = document.getElementById('detailContent');
     const compareContent = document.getElementById('compareContent');
     const sidebarAdminSummary = document.getElementById('sidebarAdminSummary');
-
     const tabDetail = document.getElementById('tabDetail');
     const tabCompare = document.getElementById('tabCompare');
     const detailView = document.getElementById('detailView');
     const compareView = document.getElementById('compareView');
+    const adminSearchInput = document.getElementById('adminSearchInput');
+    const dailySearchInput = document.getElementById('dailySearchInput');
+    const dailyStatusFilter = document.getElementById('dailyStatusFilter');
+    const dailySortFilter = document.getElementById('dailySortFilter');
+    const dailyDeviationFilter = document.getElementById('dailyDeviationFilter');
 
     fileInput.addEventListener('change', handleFiles);
     analyzeBtn.addEventListener('click', analyzeAll);
     clearBtn.addEventListener('click', clearAll);
-
+    downloadPdfBtn.addEventListener('click', downloadCombinedPdf);
     tabDetail.addEventListener('click', () => switchTab('detail'));
     tabCompare.addEventListener('click', () => switchTab('compare'));
+    adminSearchInput.addEventListener('input', e => { appState.adminSearch = e.target.value.trim().toLowerCase(); renderAdminList(); });
+    dailySearchInput.addEventListener('input', e => { appState.dailySearch = e.target.value.trim().toLowerCase(); renderDetail(); });
+    dailyStatusFilter.addEventListener('change', e => { appState.dailyStatus = e.target.value; renderDetail(); });
+    dailySortFilter.addEventListener('change', e => { appState.dailySort = e.target.value; renderDetail(); });
+    dailyDeviationFilter.addEventListener('change', e => { appState.dailyDeviation = e.target.value; renderDetail(); });
 
     function switchTab(tab){
       const isDetail = tab === 'detail';
@@ -761,20 +632,110 @@
       compareView.classList.toggle('hidden', isDetail);
     }
 
+    function safeString(v){ return v == null ? '' : String(v).trim(); }
+
+    function loadAdminProfiles(){
+      try { return JSON.parse(localStorage.getItem(ADMIN_PROFILE_KEY) || '{}'); }
+      catch { return {}; }
+    }
+    function saveAdminProfiles(profiles){ localStorage.setItem(ADMIN_PROFILE_KEY, JSON.stringify(profiles)); }
+    function getAdminProfile(adminId){ return loadAdminProfiles()[adminId] || null; }
+    function countSavedProfiles(){ return Object.keys(loadAdminProfiles()).length; }
+    function saveAdminProfile(fileObj){
+      if (!fileObj.adminId || !fileObj.rememberProfile) return;
+      const profiles = loadAdminProfiles();
+      profiles[fileObj.adminId] = {
+        adminId: fileObj.adminId,
+        adminName: fileObj.adminName || '',
+        roomId: fileObj.roomId || '',
+        startTime: fileObj.startTime || '22:00',
+        endTime: fileObj.endTime || '24:00',
+        weeklySchedule: fileObj.weeklySchedule || buildDefaultWeeklySchedule(),
+        leaveDatesText: fileObj.leaveDatesText || '',
+        substitutionText: fileObj.substitutionText || '',
+        rememberProfile: true
+      };
+      saveAdminProfiles(profiles);
+    }
+    function removeAdminProfile(adminId){
+      if (!adminId) return;
+      const profiles = loadAdminProfiles();
+      delete profiles[adminId];
+      saveAdminProfiles(profiles);
+    }
+
+    function loadGlobalSettings(){
+      try { return JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}'); }
+      catch { return {}; }
+    }
+    function saveGlobalSettings(settings){ localStorage.setItem(GLOBAL_SETTINGS_KEY, JSON.stringify(settings)); }
+
+    function buildDefaultWeeklySchedule(){
+      return {
+        monday:true,
+        tuesday:true,
+        wednesday:true,
+        thursday:true,
+        friday:true,
+        saturday:false,
+        sunday:false
+      };
+    }
+
+    function guessAdminNameFromFileName(fileName){
+      const clean = safeString(fileName).replace(/\.[^.]+$/, '');
+      const parts = clean.split(/[_-]+/).map(s => s.trim()).filter(Boolean);
+      return parts.find(p => /[A-Za-zÇĞİÖŞÜçğıöşü]/.test(p)) || '';
+    }
+
+    function buildTimeOptions(){
+      const arr = [];
+      for(let h = 0; h <= 24; h++){
+        for(let m = 0; m < 60; m += 30){
+          if (h === 24 && m > 0) continue;
+          arr.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+        }
+      }
+      return arr;
+    }
+    const timeOptions = buildTimeOptions();
+
+    function fillTimeSelectOptions(selectId, selectedValue){
+      const el = document.getElementById(selectId);
+      if (!el) return;
+      el.innerHTML = timeOptions.map(t => `<option value="${t}" ${t === selectedValue ? 'selected' : ''}>${t}</option>`).join('');
+    }
+
+    function initGlobalDefaults(){
+      const settings = loadGlobalSettings();
+      fillTimeSelectOptions('defaultStartTime', settings.defaultStartTime || '22:00');
+      fillTimeSelectOptions('defaultEndTime', settings.defaultEndTime || '24:00');
+      document.getElementById('defaultStartTime').addEventListener('change', e => {
+        const s = loadGlobalSettings();
+        s.defaultStartTime = e.target.value;
+        saveGlobalSettings(s);
+      });
+      document.getElementById('defaultEndTime').addEventListener('change', e => {
+        const s = loadGlobalSettings();
+        s.defaultEndTime = e.target.value;
+        saveGlobalSettings(s);
+      });
+    }
+
     function clearAll(){
       appState.files = [];
       appState.selectedIndex = null;
       appState.analysisGenerated = false;
       appState.comparisonRows = [];
+      appState.adminSearch = '';
+      appState.dailySearch = '';
       fileInput.value = '';
+      adminSearchInput.value = '';
+      dailySearchInput.value = '';
       renderAll();
     }
 
-    function safeString(v){
-      return v == null ? '' : String(v).trim();
-    }
-
-    function excelSerialToUTCDate(serial) {
+    function excelSerialToUTCDate(serial){
       const utcDays = Math.floor(serial - 25569);
       const utcValue = utcDays * 86400;
       const fractionalDay = serial - Math.floor(serial) + 0.0000001;
@@ -790,26 +751,19 @@
 
     function parseUtcToTR(raw){
       if (raw == null || raw === '') return null;
-
       if (typeof raw === 'number' && isFinite(raw)) {
         const d = excelSerialToUTCDate(raw);
-        return DateTime.fromJSDate(d, { zone: 'UTC' }).setZone('Europe/Istanbul');
+        return DateTime.fromJSDate(d, { zone:'UTC' }).setZone('Europe/Istanbul');
       }
-
       const s = String(raw).trim();
-
-      let dt = DateTime.fromFormat(s, 'MM/dd/yyyy HH:mm:ss', { zone: 'UTC' });
-      if (!dt.isValid) dt = DateTime.fromFormat(s, 'M/d/yyyy H:mm:ss', { zone: 'UTC' });
-      if (!dt.isValid) dt = DateTime.fromFormat(s, 'yyyy-MM-dd HH:mm:ss', { zone: 'UTC' });
-      if (!dt.isValid) dt = DateTime.fromISO(s, { zone: 'UTC' });
-
+      let dt = DateTime.fromFormat(s, 'MM/dd/yyyy HH:mm:ss', { zone:'UTC' });
+      if (!dt.isValid) dt = DateTime.fromFormat(s, 'M/d/yyyy H:mm:ss', { zone:'UTC' });
+      if (!dt.isValid) dt = DateTime.fromFormat(s, 'yyyy-MM-dd HH:mm:ss', { zone:'UTC' });
+      if (!dt.isValid) dt = DateTime.fromISO(s, { zone:'UTC' });
       if (!dt.isValid) {
         const native = new Date(s);
-        if (!isNaN(native.getTime())) {
-          dt = DateTime.fromJSDate(native, { zone: 'UTC' });
-        }
+        if (!isNaN(native.getTime())) dt = DateTime.fromJSDate(native, { zone:'UTC' });
       }
-
       if (!dt || !dt.isValid) return null;
       return dt.setZone('Europe/Istanbul');
     }
@@ -821,24 +775,12 @@
         const adminId = safeString(row['用户XID'] ?? row['用户ID'] ?? row['用户Xid']);
         const up = row['上麦时间'];
         const down = row['下麦时间'];
-
         if (!roomId || !adminId || up == null || down == null || up === '' || down === '') continue;
-
         const startTR = parseUtcToTR(up);
         const endTR = parseUtcToTR(down);
-
         if (!startTR || !endTR || endTR <= startTR) continue;
-
-        normalized.push({
-          roomId,
-          adminId,
-          startTR,
-          endTR,
-          upRaw: safeString(up),
-          downRaw: safeString(down)
-        });
+        normalized.push({ roomId, adminId, startTR, endTR, upRaw:safeString(up), downRaw:safeString(down) });
       }
-
       normalized.sort((a,b) => a.startTR.toMillis() - b.startTR.toMillis());
       return normalized;
     }
@@ -852,79 +794,54 @@
       });
     }
 
-    function buildTimeOptions(){
-      const arr = [];
-      for(let h=0; h<=24; h++){
-        for(let m=0; m<60; m+=30){
-          if(h === 24 && m > 0) continue;
-          arr.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
-        }
-      }
-      return arr;
-    }
-
-    const timeOptions = buildTimeOptions();
-
     async function handleFiles(e){
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
       if (files.length > 30) {
-        alert('En fazla 30 dosya yüklenebilir.\n最多可上传 30 个文件。');
+        alert('En fazla 30 dosya yüklenebilir.');
         fileInput.value = '';
         return;
       }
 
       const parsed = [];
       const warnings = [];
+      const globalSettings = loadGlobalSettings();
 
       for (const file of files) {
         try {
           const buffer = await readFileAsArrayBuffer(file);
-          const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
+          const workbook = XLSX.read(buffer, { type:'array', cellDates:false });
           const sheetName = workbook.SheetNames[0];
           const ws = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-          const rawAdminIds = [...new Set(
-            json
-              .map(row => row['用户XID'] ?? row['用户ID'] ?? row['用户Xid'])
-              .filter(v => v != null && String(v).trim() !== '')
-              .map(v => String(v).trim())
-          )];
-
+          const json = XLSX.utils.sheet_to_json(ws, { defval:'' });
+          const rawAdminIds = [...new Set(json.map(row => row['用户XID'] ?? row['用户ID'] ?? row['用户Xid']).filter(v => v != null && String(v).trim() !== '').map(v => String(v).trim()))];
           const rows = parseRows(json);
 
           let resolvedAdminId = '';
-          if (rawAdminIds.length === 1) {
+          if (rawAdminIds.length === 1) resolvedAdminId = rawAdminIds[0];
+          else if (rawAdminIds.length > 1) {
             resolvedAdminId = rawAdminIds[0];
-          } else if (rawAdminIds.length > 1) {
-            resolvedAdminId = rawAdminIds[0];
-            warnings.push(`${file.name}: birden fazla Admin ID bulundu / 存在多个管理员ID`);
+            warnings.push(`${file.name}: birden fazla Admin ID bulundu`);
           } else {
-            warnings.push(`${file.name}: Admin ID okunamadı / 无法读取管理员ID`);
+            warnings.push(`${file.name}: Admin ID okunamadı`);
           }
 
+          const profile = resolvedAdminId ? getAdminProfile(resolvedAdminId) : null;
+          const guessedName = guessAdminNameFromFileName(file.name);
           const firstStart = rows.length ? rows[0].startTR : null;
-          const lastEnd = rows.length ? rows[rows.length-1].endTR : null;
+          const lastEnd = rows.length ? rows[rows.length - 1].endTR : null;
 
           parsed.push({
             fileName: file.name,
-            adminName: '',
+            adminName: profile?.adminName || guessedName || '',
             adminId: resolvedAdminId,
-            roomId: '',
-            startTime: '22:00',
-            endTime: '24:00',
-            weeklySchedule: {
-              monday: true,
-              tuesday: true,
-              wednesday: true,
-              thursday: true,
-              friday: true,
-              saturday: false,
-              sunday: false
-            },
-            leaveDatesText: '',
-            substitutionText: '',
+            roomId: profile?.roomId || '',
+            startTime: profile?.startTime || globalSettings.defaultStartTime || '22:00',
+            endTime: profile?.endTime || globalSettings.defaultEndTime || '24:00',
+            weeklySchedule: profile?.weeklySchedule || buildDefaultWeeklySchedule(),
+            leaveDatesText: profile?.leaveDatesText || '',
+            substitutionText: profile?.substitutionText || '',
+            rememberProfile: !!profile?.rememberProfile,
             rows,
             rawCount: json.length,
             firstStart,
@@ -933,7 +850,7 @@
             status: resolvedAdminId ? 'ready' : 'missing-id'
           });
         } catch (err) {
-          warnings.push(`${file.name}: dosya okunamadı / 文件无法读取`);
+          warnings.push(`${file.name}: dosya okunamadı`);
         }
       }
 
@@ -942,176 +859,374 @@
       appState.analysisGenerated = false;
       appState.comparisonRows = [];
       renderAll();
+      if (warnings.length) alert(warnings.join('\n'));
+    }
 
-      if (warnings.length) {
-        alert(warnings.join('\n'));
-      }
+    function getFilteredFiles(){
+      const q = appState.adminSearch;
+      if (!q) return appState.files;
+      return appState.files.filter(f => (`${f.adminName} ${f.fileName} ${f.adminId} ${f.roomId}`).toLowerCase().includes(q));
     }
 
     function renderAll(){
+      renderHero();
       renderSidebarSummary();
       renderAdminList();
+      renderGlobalKpis();
       renderDetail();
       renderComparison();
     }
 
+    function renderHero(){
+      document.getElementById('heroAdminCount').textContent = appState.files.length;
+      document.getElementById('heroSavedProfiles').textContent = countSavedProfiles();
+      document.getElementById('heroAnalyzedCount').textContent = appState.files.filter(f => f.analysis && !f.analysis.error).length;
+      document.getElementById('heroRiskCount').textContent = appState.files.filter(f => isRiskyAdmin(f.analysis)).length;
+      document.getElementById('adminListCountBadge').textContent = `${getFilteredFiles().length} kayıt`;
+    }
+
     function renderSidebarSummary(){
       if (!appState.files.length) {
-        sidebarAdminSummary.innerHTML = 'Henüz dosya yok<br>暂无文件';
+        sidebarAdminSummary.innerHTML = 'Henüz dosya yok';
         return;
       }
-      sidebarAdminSummary.innerHTML = appState.files.map((f, i) => {
-        const name = escapeHtml(f.adminName || '(İsimsiz / 未命名)');
-        const id = escapeHtml(f.adminId || '-');
-        return `${i+1}. ${name} | ID: ${id}`;
-      }).join('<br>');
+      const ready = appState.files.filter(f => f.adminId && f.roomId).length;
+      const remembered = appState.files.filter(f => f.rememberProfile).length;
+      const analyzed = appState.files.filter(f => f.analysis && !f.analysis.error).length;
+      sidebarAdminSummary.innerHTML = `
+        Toplam dosya: <b>${appState.files.length}</b><br>
+        Analize hazır profil: <b>${ready}</b><br>
+        Kayıtlı profil: <b>${remembered}</b><br>
+        Analiz tamamlanan: <b>${analyzed}</b>
+      `;
     }
 
     function renderAdminList(){
+      const items = getFilteredFiles();
       adminListEl.innerHTML = '';
-      if (!appState.files.length) {
-        adminListEl.innerHTML = '<div class="empty" style="min-height:180px">Henüz dosya yok<br>暂无文件</div>';
+      if (!items.length) {
+        adminListEl.innerHTML = '<div class="empty" style="min-height:180px">Eşleşen admin yok</div>';
         return;
       }
-
-      appState.files.forEach((f, index) => {
+      items.forEach(f => {
+        const originalIndex = appState.files.indexOf(f);
         const div = document.createElement('div');
-        div.className = `admin-item ${appState.selectedIndex === index ? 'active' : ''}`;
-        div.onclick = () => {
-          appState.selectedIndex = index;
-          renderAll();
-        };
+        div.className = `admin-card ${appState.selectedIndex === originalIndex ? 'active' : ''}`;
+        div.onclick = () => { appState.selectedIndex = originalIndex; renderAll(); };
 
-        const badgeClass = !f.adminId ? 'danger' : (f.analysis ? 'ok' : 'blue');
-        const badgeText = !f.adminId
-          ? 'Admin ID eksik / 管理员ID缺失'
-          : (f.analysis ? 'Analiz hazır / 分析完成' : 'Analiz bekleniyor / 等待分析');
+        const a = f.analysis;
+        const risk = a && !a.error && isRiskyAdmin(a);
+
+        const statusBadge = !f.adminId
+          ? '<span class="badge red">ID eksik</span>'
+          : a ? '<span class="badge green">Analiz hazır</span>' : '<span class="badge blue">Analiz bekleniyor</span>';
+
+        const riskBadge = risk ? '<span class="badge red">Riskli admin</span>' : '';
+        const profileBadge = f.rememberProfile ? '<span class="badge purple">Kayıtlı profil</span>' : '';
+        const roomBadge = f.roomId ? `<span class="badge amber">Oda ${escapeHtml(f.roomId)}</span>` : '<span class="badge gray">Oda yok</span>';
 
         div.innerHTML = `
-          <h4>${escapeHtml(f.adminName || f.fileName)}</h4>
-          <div class="meta">
-            ID / 编号: ${escapeHtml(f.adminId || 'yok')}<br>
-            Oda / 房间: ${escapeHtml(f.roomId || 'yok')}<br>
-            Dosya / 文件: ${escapeHtml(f.fileName)}
+          <h4 class="admin-name">${escapeHtml(f.adminName || f.fileName)}</h4>
+          <div class="admin-meta">
+            ID: ${escapeHtml(f.adminId || '-')}<br>
+            Saat: ${escapeHtml(f.startTime)} - ${escapeHtml(f.endTime)}<br>
+            Dosya: ${escapeHtml(f.fileName)}
           </div>
-          <div class="badge ${badgeClass}">${badgeText}</div>
+          <div class="badge-row">${statusBadge}${riskBadge}${profileBadge}${roomBadge}</div>
         `;
         adminListEl.appendChild(div);
       });
     }
 
+    function renderStatCard(label, value, foot, icon, color){
+      return `
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-label">${escapeHtml(label)}</div>
+            <div class="stat-icon icon-${color}">${icon}</div>
+          </div>
+          <div class="stat-value">${escapeHtml(value)}</div>
+          <div class="stat-foot">${escapeHtml(foot)}</div>
+        </div>
+      `;
+    }
+
+    function renderGlobalKpis(){
+      const analyzed = appState.files.filter(f => f.analysis && !f.analysis.error);
+      const totalOperationalDays = analyzed.reduce((s,f) => s + (f.analysis.summary?.operationalDays || 0), 0);
+      const totalAbsent = analyzed.reduce((s,f) => s + (f.analysis.summary?.absent || 0), 0);
+      const totalLate = analyzed.reduce((s,f) => s + (f.analysis.summary?.late || 0), 0);
+      const totalOther = analyzed.reduce((s,f) => s + (f.analysis.summary?.totalOtherRoom || 0), 0);
+      const totalIgnoredGap = analyzed.reduce((s,f) => s + (f.analysis.summary?.ignoredGap || 0), 0);
+      const avgOnTime = analyzed.length ? Math.round(analyzed.reduce((s,f) => s + (f.analysis.compareRow?.onTimeRate || 0), 0) / analyzed.length) : 0;
+      const riskAdmins = analyzed.filter(f => isRiskyAdmin(f.analysis)).length;
+
+      document.getElementById('globalKpiGrid').innerHTML = `
+        ${renderStatCard('Operasyon Günü', totalOperationalDays, 'İzinli ve plan dışı hariç', '📅', 'amber')}
+        ${renderStatCard('Toplam Geç Kalma', totalLate, 'Tolerans üstü geç başlangıç', '⏱', 'amber')}
+        ${renderStatCard('Toplam Gelmeme', totalAbsent, 'İzinli olmayan devamsızlık', '✖', 'red')}
+        ${renderStatCard('Başka Oda Süresi', totalOther + ' dk', 'Planlı pencere içinde', '↔', 'blue')}
+        ${renderStatCard('Eşik Altı Kesinti', totalIgnoredGap + ' dk', 'Ceza dışı ama raporlanan kısa boşluklar', '⋯', 'purple')}
+        ${renderStatCard('Ortalama Zamanında Başlama', avgOnTime + '%', 'Analizlenen admin ortalaması', '✓', 'green')}
+      `;
+    }
+
     function renderDetail(){
       if (appState.selectedIndex == null || !appState.files.length) {
         detailContent.className = 'empty';
-        detailContent.innerHTML = 'Henüz dosya yok<br>暂无文件';
+        detailContent.innerHTML = 'Henüz dosya yok';
         return;
       }
 
       const f = appState.files[appState.selectedIndex];
-
       detailContent.className = '';
       detailContent.innerHTML = `
-        <div class="admin-detail-card">
-          <div class="admin-detail-top">
-            <div>
-              <h3>${escapeHtml(f.adminName || f.fileName)}</h3>
-              <div class="inline-meta">
-                Admin ID / 管理员ID: ${escapeHtml(f.adminId || 'yok')}<br>
-                Dosya / 文件: ${escapeHtml(f.fileName)}<br>
-                Satır / 记录数: ${f.rows.length}<br>
-                ${f.firstStart ? `İlk kayıt / 首条记录: ${f.firstStart.toFormat('dd.MM.yyyy HH:mm')}` : ''}<br>
-                ${f.lastEnd ? `Son kayıt / 最后记录: ${f.lastEnd.toFormat('dd.MM.yyyy HH:mm')}` : ''}
+        <section class="detail-grid">
+          <div class="detail-block">
+            <div class="profile-header">
+              <div>
+                <h2 class="profile-title">${escapeHtml(f.adminName || f.fileName)}</h2>
+                <div class="profile-sub">
+                  Admin ID: ${escapeHtml(f.adminId || '-')}<br>
+                  Dosya: ${escapeHtml(f.fileName)}<br>
+                  İlk kayıt: ${f.firstStart ? f.firstStart.toFormat('dd.MM.yyyy HH:mm') : '-'}<br>
+                  Son kayıt: ${f.lastEnd ? f.lastEnd.toFormat('dd.MM.yyyy HH:mm') : '-'}
+                </div>
+              </div>
+              <div class="badge-row">
+                ${f.adminId ? '<span class="badge green">ID bulundu</span>' : '<span class="badge red">ID yok</span>'}
+                ${f.rememberProfile ? '<span class="badge purple">Kayıtlı profil</span>' : '<span class="badge gray">Geçici profil</span>'}
               </div>
             </div>
-            <div class="badge ${f.adminId ? 'ok' : 'danger'}">
-              ${f.adminId ? 'ID bulundu / 已识别' : 'ID yok / 无ID'}
+
+            <div class="form-grid cols-2">
+              <div class="field">
+                <label><span class="tr">Admin Adı</span><span class="zh">管理员姓名</span></label>
+                <input type="text" id="adminNameInput" value="${escapeAttr(f.adminName)}" placeholder="Örn: Karamel" />
+              </div>
+              <div class="field">
+                <label><span class="tr">Admin Olduğu Oda ID</span><span class="zh">所属房间 ID</span></label>
+                <input type="text" id="roomIdInput" value="${escapeAttr(f.roomId)}" placeholder="Örn: 1002" />
+              </div>
+            </div>
+
+            <div class="form-grid cols-2" style="margin-top:12px">
+              <div class="field">
+                <label><span class="tr">Yayın Başlangıç Saati</span><span class="zh">开播开始时间</span></label>
+                ${renderTimeSelect('startTimeSelect', f.startTime)}
+              </div>
+              <div class="field">
+                <label><span class="tr">Yayın Bitiş Saati</span><span class="zh">开播结束时间</span></label>
+                ${renderTimeSelect('endTimeSelect', f.endTime)}
+              </div>
+            </div>
+
+            <div style="margin-top:14px">
+              <label class="field"><span class="tr">Haftalık Yayın Planı</span><span class="zh">每周开播计划</span></label>
+              <div class="schedule-grid">
+                ${dayKeys.map(day => `
+                  <label class="day-chip">
+                    <input data-day="${day}" class="weekly-check" type="checkbox" ${f.weeklySchedule[day] ? 'checked' : ''}>
+                    <span class="tr">${dayLabels[day].tr}</span>
+                    <span class="zh">${dayLabels[day].zh}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="form-grid cols-2" style="margin-top:14px">
+              <div class="field">
+                <label><span class="tr">İzinli Günler</span><span class="zh">请假日期</span></label>
+                <textarea id="leaveDatesInput" placeholder="YYYY-MM-DD&#10;YYYY-MM-DD">${escapeHtml(f.leaveDatesText)}</textarea>
+              </div>
+              <div class="field">
+                <label><span class="tr">Yayın Değişikliği Günleri</span><span class="zh">调班日期</span></label>
+                <textarea id="substitutionInput" placeholder="YYYY-MM-DD|TemsilciAdminID">${escapeHtml(f.substitutionText)}</textarea>
+              </div>
+            </div>
+
+            <div class="remember-box">
+              <label>
+                <input id="rememberProfileCheck" type="checkbox" ${f.rememberProfile ? 'checked' : ''}>
+                <div>
+                  <div class="remember-title">Bu adminin bilgilerini bir daha sorma</div>
+                  <div class="remember-sub">İşaretli olursa ad, oda, saat ve plan bilgileri bu bilgisayarda saklanır.</div>
+                </div>
+              </label>
             </div>
           </div>
 
-          <div class="grid-2">
-            <div>
-              <label class="label">
-                <span class="tr">Admin Adı</span>
-                <span class="zh">管理员姓名</span>
-              </label>
-              <input type="text" id="adminNameInput" value="${escapeAttr(f.adminName)}" placeholder="Örn: Karamel" />
-            </div>
-            <div>
-              <label class="label">
-                <span class="tr">Admin Olduğu Oda ID</span>
-                <span class="zh">所属房间 ID</span>
-              </label>
-              <input type="text" id="roomIdInput" value="${escapeAttr(f.roomId)}" placeholder="Örn: 1002" />
-            </div>
+          <div class="detail-block">
+            ${f.analysis ? renderAdminHighlightPanel(f) : '<div class="empty" style="min-height:100%">Analiz henüz üretilmedi</div>'}
           </div>
+        </section>
 
-          <div class="grid-2" style="margin-top:16px">
-            <div>
-              <label class="label">
-                <span class="tr">Yayın Başlangıç Saati</span>
-                <span class="zh">开播开始时间</span>
-              </label>
-              ${renderTimeSelect('startTimeSelect', f.startTime)}
-            </div>
-            <div>
-              <label class="label">
-                <span class="tr">Yayın Bitiş Saati</span>
-                <span class="zh">开播结束时间</span>
-              </label>
-              ${renderTimeSelect('endTimeSelect', f.endTime)}
-            </div>
-          </div>
-
-          <div style="margin-top:18px">
-            <label class="label">
-              <span class="tr">Haftalık Yayın Planı</span>
-              <span class="zh">每周开播计划</span>
-            </label>
-            <div class="weekly-grid">
-              ${dayKeys.map(day => `
-                <label class="day-box">
-                  <input data-day="${day}" class="weekly-check" type="checkbox" ${f.weeklySchedule[day] ? 'checked' : ''}>
-                  <span class="tr">${dayLabels[day].tr}</span>
-                  <span class="zh">${dayLabels[day].zh}</span>
-                </label>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="grid-2" style="margin-top:18px">
-            <div>
-              <label class="label">
-                <span class="tr">İzinli Günler</span>
-                <span class="zh">请假日期</span>
-              </label>
-              <textarea id="leaveDatesInput" placeholder="YYYY-MM-DD&#10;YYYY-MM-DD">${escapeHtml(f.leaveDatesText)}</textarea>
-            </div>
-            <div>
-              <label class="label">
-                <span class="tr">Yayın Değişikliği Günleri</span>
-                <span class="zh">调班日期</span>
-              </label>
-              <textarea id="substitutionInput" placeholder="YYYY-MM-DD|TemsilciAdminID&#10;2026-03-14|8888888888">${escapeHtml(f.substitutionText)}</textarea>
-            </div>
-          </div>
-        </div>
-
-        ${f.analysis ? renderAnalysisSection(f) : `
-          <div class="empty" style="min-height:280px">
-            Analiz üretilmedi<br>尚未分析
-          </div>
-        `}
+        ${f.analysis ? renderAnalysisTables(f) : '<div class="empty">Analiz üretilmedi</div>'}
       `;
-
       bindDetailInputs();
     }
 
-    function renderTimeSelect(id, selected){
+    function renderAdminHighlightPanel(f){
+      const a = f.analysis;
+      if (!a || a.error) return `<div class="empty">${escapeHtml(a?.error || 'Analiz hatası')}</div>`;
+      const worstStatus = getWorstStatusCount(a.dailyRows);
       return `
-        <select id="${id}">
-          ${timeOptions.map(t => `<option value="${t}" ${t === selected ? 'selected' : ''}>${t}</option>`).join('')}
-        </select>
+        <div class="table-head" style="margin-bottom:12px">
+          <div>
+            <h3 class="table-title">Admin Özeti</h3>
+            <p class="table-sub">Öncelikle görülmesi gereken kritik göstergeler</p>
+          </div>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr)">
+          ${renderStatCard('Operasyon Günü', a.summary.operationalDays, 'İzinli ve plan dışı hariç', '📆', 'amber')}
+          ${renderStatCard('Zamanında Başlama', a.compareRow.onTimeRate + '%', 'Admin bazlı oran', '✓', 'green')}
+          ${renderStatCard('Gelmeme', a.summary.absent, 'İzinli olmayan devamsızlık', '✖', 'red')}
+          ${renderStatCard('Başka Oda', a.summary.totalOtherRoom + ' dk', 'Planlı pencere içinde', '↔', 'blue')}
+          ${renderStatCard('Gerçek Kesinti', a.summary.totalGap + ' dk', 'Eşik üstü sayılan kesinti', '⛔', 'orange')}
+          ${renderStatCard('Eşik Altı Kesinti', a.summary.ignoredGap + ' dk', `${a.summary.ignoredGapCount} kısa hareket`, '⋯', 'purple')}
+        </div>
+        <div style="margin-top:16px" class="leaderboard">
+          <div class="rank-card">
+            <div class="rank-label">En Kritik Durum</div>
+            <div class="rank-main">${escapeHtml(worstStatus.label)}</div>
+            <div class="rank-sub">${worstStatus.count} kez görüldü</div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-label">Toplam Geç Başlama</div>
+            <div class="rank-main">${a.summary.totalLateMin} dk</div>
+            <div class="rank-sub">Gün bazlı biriken geç başlama süresi</div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-label">Toplam Erken Çıkış</div>
+            <div class="rank-main">${a.summary.totalEarlyMin} dk</div>
+            <div class="rank-sub">Gün bazlı biriken erken çıkış süresi</div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-label">Yanlış Oda Davranışı</div>
+            <div class="rank-main">${a.compareRow.wrongRoomAbsentDays} gün</div>
+            <div class="rank-sub">Kendi yayınına gelmeyip başka odada aktif olduğu günler</div>
+          </div>
+        </div>
       `;
+    }
+
+    function getWorstStatusCount(rows){
+      const priority = [
+        STATUS.ABSENT_OTHER_ROOM,
+        STATUS.ABSENT,
+        STATUS.LATE_EARLY,
+        STATUS.GAP,
+        STATUS.SHORT_GAP,
+        STATUS.LATE,
+        STATUS.EARLY,
+        STATUS.OTHER_ROOM,
+        STATUS.SUBSTITUTE_OK,
+        STATUS.CLEAN
+      ];
+      const counts = {};
+      rows.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+      for (const key of priority) {
+        if (counts[key]) return { label:key, count:counts[key] };
+      }
+      return { label:STATUS.CLEAN, count:0 };
+    }
+
+    function renderAnalysisTables(f){
+      const a = f.analysis;
+      if (a.error) return `<div class="empty">${escapeHtml(a.error)}</div>`;
+      return `
+        <section class="card">
+          <div class="table-head">
+            <div>
+              <h3 class="table-title">Aylık Özet</h3>
+              <p class="table-sub">月度汇总</p>
+            </div>
+          </div>
+          ${renderMonthlyTable(a.monthlyRows)}
+        </section>
+
+        <section class="card">
+          <div class="table-head">
+            <div>
+              <h3 class="table-title">Yanlış Oda Davranışı</h3>
+              <p class="table-sub">Kendi yayınına gelmeyip başka odada aktif olduğu günler</p>
+            </div>
+          </div>
+          ${renderMissOtherRoomsTable(a.missButOtherRooms)}
+        </section>
+
+        <section class="card">
+          <div class="table-head">
+            <div>
+              <h3 class="table-title">Günlük Detay</h3>
+              <p class="table-sub">Filtreler yukarıdan uygulanır</p>
+            </div>
+          </div>
+          ${renderDailyTable(getFilteredDailyRows(a.dailyRows))}
+        </section>
+      `;
+    }
+
+    function getFilteredDailyRows(rows){
+      let out = [...rows];
+      if (appState.dailyStatus !== 'all') {
+        if (appState.dailyStatus === 'risk') out = out.filter(r => isRiskStatus(r.status));
+        else out = out.filter(r => r.status === appState.dailyStatus);
+      }
+      if (appState.dailyDeviation !== 'all') {
+        if (appState.dailyDeviation === 'yes') out = out.filter(r => getDeviationTotal(r) > 0);
+        if (appState.dailyDeviation === 'no') out = out.filter(r => getDeviationTotal(r) === 0);
+      }
+      if (appState.dailySearch) {
+        const q = appState.dailySearch;
+        out = out.filter(r => (`${r.date} ${r.dayTR} ${r.status} ${r.otherRoomsText} ${r.note}`).toLowerCase().includes(q));
+      }
+      if (appState.dailySort === 'dateAsc') out.sort((a,b) => a.date.localeCompare(b.date));
+      if (appState.dailySort === 'dateDesc') out.sort((a,b) => b.date.localeCompare(a.date));
+      if (appState.dailySort === 'riskDesc') out.sort((a,b) => getRiskScore(b) - getRiskScore(a));
+      return out;
+    }
+
+    function getDeviationTotal(r){
+      return (r.lateMin || 0) + (r.earlyMin || 0) + (r.totalGapMin || 0) + (r.ignoredGapMin || 0) + (r.otherRoomMin || 0);
+    }
+
+    function isRiskStatus(status){
+      return [
+        STATUS.LATE,
+        STATUS.EARLY,
+        STATUS.LATE_EARLY,
+        STATUS.GAP,
+        STATUS.SHORT_GAP,
+        STATUS.OTHER_ROOM,
+        STATUS.ABSENT,
+        STATUS.ABSENT_OTHER_ROOM
+      ].includes(status);
+    }
+
+    function getRiskScore(r){
+      let score = 0;
+      if (r.status === STATUS.ABSENT_OTHER_ROOM) score += 100;
+      else if (r.status === STATUS.ABSENT) score += 90;
+      else if (r.status === STATUS.LATE_EARLY) score += 70;
+      else if (r.status === STATUS.GAP) score += 55;
+      else if (r.status === STATUS.SHORT_GAP) score += 40;
+      else if (r.status === STATUS.LATE) score += 35;
+      else if (r.status === STATUS.EARLY) score += 30;
+      else if (r.status === STATUS.OTHER_ROOM) score += 25;
+      score += (r.totalGapMin || 0);
+      score += (r.ignoredGapMin || 0);
+      score += (r.lateMin || 0);
+      score += (r.earlyMin || 0);
+      score += Math.max(0, (r.ignoredGapCount || 0) * 2);
+      score += Math.max(0, Math.round((r.otherRoomMin || 0) / 2));
+      return score;
+    }
+
+    function isRiskyAdmin(analysis){
+      if (!analysis || analysis.error) return false;
+      const s = analysis.summary;
+      return (s.absent > 0) || (s.totalOtherRoom > 0) || (s.ignoredGap >= 10) || (s.ignoredGapCount >= 3) || (s.late > 1) || (s.totalGap > 0);
     }
 
     function bindDetailInputs(){
@@ -1121,37 +1236,57 @@
 
       document.getElementById('adminNameInput').addEventListener('input', e => {
         f.adminName = e.target.value;
+        persistIfRemembered(f);
+        renderHero();
         renderSidebarSummary();
         renderAdminList();
       });
-
       document.getElementById('roomIdInput').addEventListener('input', e => {
         f.roomId = e.target.value.trim();
+        persistIfRemembered(f);
         renderAdminList();
       });
-
       document.getElementById('startTimeSelect').addEventListener('change', e => {
         f.startTime = e.target.value;
+        persistIfRemembered(f);
+        renderAdminList();
       });
-
       document.getElementById('endTimeSelect').addEventListener('change', e => {
         f.endTime = e.target.value;
+        persistIfRemembered(f);
+        renderAdminList();
       });
-
       document.querySelectorAll('.weekly-check').forEach(chk => {
         chk.addEventListener('change', e => {
           const day = e.target.getAttribute('data-day');
           f.weeklySchedule[day] = e.target.checked;
+          persistIfRemembered(f);
         });
       });
-
       document.getElementById('leaveDatesInput').addEventListener('input', e => {
         f.leaveDatesText = e.target.value;
+        persistIfRemembered(f);
       });
-
       document.getElementById('substitutionInput').addEventListener('input', e => {
         f.substitutionText = e.target.value;
+        persistIfRemembered(f);
       });
+      document.getElementById('rememberProfileCheck').addEventListener('change', e => {
+        f.rememberProfile = e.target.checked;
+        if (f.rememberProfile) saveAdminProfile(f);
+        else removeAdminProfile(f.adminId);
+        renderHero();
+        renderSidebarSummary();
+        renderAdminList();
+      });
+    }
+
+    function persistIfRemembered(fileObj){
+      if (fileObj.rememberProfile) saveAdminProfile(fileObj);
+    }
+
+    function renderTimeSelect(id, selected){
+      return `<select id="${id}">${timeOptions.map(t => `<option value="${t}" ${t === selected ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
     }
 
     function parseTimeToMinutes(t){
@@ -1163,23 +1298,14 @@
       const [y,m,d] = baseDateISO.split('-').map(Number);
       const startMin = parseTimeToMinutes(startTime);
       const endMin = parseTimeToMinutes(endTime);
-
-      const start = DateTime.fromObject(
-        { year:y, month:m, day:d, hour:Math.floor(startMin/60), minute:startMin%60 },
-        { zone:'Europe/Istanbul' }
-      );
-
+      const start = DateTime.fromObject({ year:y, month:m, day:d, hour:Math.floor(startMin/60), minute:startMin%60 }, { zone:'Europe/Istanbul' });
       let end;
       if (endTime === '24:00') {
         end = start.startOf('day').plus({ days:1 });
       } else {
-        end = DateTime.fromObject(
-          { year:y, month:m, day:d, hour:Math.floor(endMin/60), minute:endMin%60 },
-          { zone:'Europe/Istanbul' }
-        );
+        end = DateTime.fromObject({ year:y, month:m, day:d, hour:Math.floor(endMin/60), minute:endMin%60 }, { zone:'Europe/Istanbul' });
         if (end <= start) end = end.plus({ days:1 });
       }
-
       return { start, end };
     }
 
@@ -1192,32 +1318,21 @@
         case 5: return 'friday';
         case 6: return 'saturday';
         case 7: return 'sunday';
+        default: return 'monday';
       }
     }
 
     function parseDateLines(text){
-      return new Set(
-        text.split('\n')
-          .map(s => s.trim())
-          .filter(Boolean)
-      );
+      return new Set(text.split('\n').map(s => s.trim()).filter(Boolean));
     }
 
     function parseSubstitutions(text){
       const map = new Map();
       text.split('\n').map(s => s.trim()).filter(Boolean).forEach(line => {
         const parts = line.split('|').map(x => x.trim());
-        if (parts.length >= 2) {
-          map.set(parts[0], parts[1]);
-        }
+        if (parts.length >= 2) map.set(parts[0], parts[1]);
       });
       return map;
-    }
-
-    function overlapMinutes(start1, end1, start2, end2){
-      const s = Math.max(start1.toMillis(), start2.toMillis());
-      const e = Math.min(end1.toMillis(), end2.toMillis());
-      return Math.max(0, Math.round((e - s) / 60000));
     }
 
     function clipInterval(start1, end1, start2, end2){
@@ -1234,7 +1349,7 @@
       if (!intervals.length) return [];
       const sorted = [...intervals].sort((a,b) => a.start.toMillis() - b.start.toMillis());
       const merged = [sorted[0]];
-      for (let i=1; i<sorted.length; i++){
+      for (let i = 1; i < sorted.length; i++) {
         const cur = sorted[i];
         const last = merged[merged.length - 1];
         if (cur.start <= last.end) {
@@ -1248,27 +1363,104 @@
 
     function getStatusClass(status){
       switch(status){
-        case 'Sorunsuz':
-        case 'Temsil ile tamamlandı':
-          return 'status-green';
-        case 'Geç başladı':
-        case 'Erken çıktı':
-        case 'Geç başladı + Erken çıktı':
-        case 'Kesinti var':
-        case 'Başka odada aktif':
-          return 'status-yellow';
-        case 'Hiç gelmedi':
-        case 'Yayına gelmedi, başka odada aktif':
-          return 'status-red';
-        case 'İzinli':
-          return 'status-blue';
-        case 'Yayın değişikliği':
-          return 'status-purple';
-        case 'Plan dışı':
-          return 'status-gray';
+        case STATUS.CLEAN:
+        case STATUS.SUBSTITUTE_OK:
+          return 's-green';
+        case STATUS.LATE:
+        case STATUS.EARLY:
+        case STATUS.LATE_EARLY:
+        case STATUS.GAP:
+        case STATUS.SHORT_GAP:
+        case STATUS.OTHER_ROOM:
+          return 's-yellow';
+        case STATUS.ABSENT:
+        case STATUS.ABSENT_OTHER_ROOM:
+          return 's-red';
+        case STATUS.LEAVE:
+          return 's-blue';
+        case STATUS.OFF_PLAN:
         default:
-          return 'status-gray';
+          return 's-gray';
       }
+    }
+
+    function createEmptyDailyRow(date, dayTR, status){
+      return {
+        date,
+        dayTR,
+        status,
+        firstEntry:'-',
+        lastExit:'-',
+        lateMin:0,
+        earlyMin:0,
+        gapCount:0,
+        totalGapMin:0,
+        ignoredGapCount:0,
+        ignoredGapMin:0,
+        otherRoomMin:0,
+        otherRoomsText:'-',
+        note:'-',
+        riskScore:0
+      };
+    }
+
+    function summarizeDailyRows(dailyRows){
+      const operationalRows = dailyRows.filter(r => ![STATUS.OFF_PLAN, STATUS.LEAVE].includes(r.status));
+      return {
+        plannedDays: dailyRows.filter(r => r.status !== STATUS.OFF_PLAN).length,
+        operationalDays: operationalRows.length,
+        onTimeStart: dailyRows.filter(r => [STATUS.CLEAN, STATUS.SUBSTITUTE_OK].includes(r.status)).length,
+        late: dailyRows.filter(r => [STATUS.LATE, STATUS.LATE_EARLY].includes(r.status)).length,
+        early: dailyRows.filter(r => [STATUS.EARLY, STATUS.LATE_EARLY].includes(r.status)).length,
+        absent: dailyRows.filter(r => [STATUS.ABSENT, STATUS.ABSENT_OTHER_ROOM].includes(r.status)).length,
+        leave: dailyRows.filter(r => r.status === STATUS.LEAVE).length,
+        substitution: dailyRows.filter(r => r.note.startsWith('Temsilci')).length,
+        shortGapDays: dailyRows.filter(r => r.status === STATUS.SHORT_GAP).length,
+        totalGap: dailyRows.reduce((sum, r) => sum + r.totalGapMin, 0),
+        ignoredGap: dailyRows.reduce((sum, r) => sum + (r.ignoredGapMin || 0), 0),
+        ignoredGapCount: dailyRows.reduce((sum, r) => sum + (r.ignoredGapCount || 0), 0),
+        totalOtherRoom: dailyRows.reduce((sum, r) => sum + r.otherRoomMin, 0),
+        totalLateMin: dailyRows.reduce((sum, r) => sum + r.lateMin, 0),
+        totalEarlyMin: dailyRows.reduce((sum, r) => sum + r.earlyMin, 0)
+      };
+    }
+
+    function buildMonthlyRows(dailyRows){
+      const monthMap = new Map();
+      dailyRows.forEach(r => {
+        const key = r.date.slice(0,7);
+        if (!monthMap.has(key)) {
+          monthMap.set(key, {
+            month:key,
+            planned:0,
+            operational:0,
+            leave:0,
+            substitution:0,
+            late:0,
+            early:0,
+            absent:0,
+            shortGapDays:0,
+            gap:0,
+            ignoredGap:0,
+            ignoredGapCount:0,
+            other:0
+          });
+        }
+        const m = monthMap.get(key);
+        if (r.status !== STATUS.OFF_PLAN) m.planned++;
+        if (![STATUS.OFF_PLAN, STATUS.LEAVE].includes(r.status)) m.operational++;
+        if (r.status === STATUS.LEAVE) m.leave++;
+        if (r.note.startsWith('Temsilci')) m.substitution++;
+        if ([STATUS.LATE, STATUS.LATE_EARLY].includes(r.status)) m.late++;
+        if ([STATUS.EARLY, STATUS.LATE_EARLY].includes(r.status)) m.early++;
+        if ([STATUS.ABSENT, STATUS.ABSENT_OTHER_ROOM].includes(r.status)) m.absent++;
+        if (r.status === STATUS.SHORT_GAP) m.shortGapDays++;
+        m.gap += r.totalGapMin;
+        m.ignoredGap += r.ignoredGapMin || 0;
+        m.ignoredGapCount += r.ignoredGapCount || 0;
+        m.other += r.otherRoomMin;
+      });
+      return [...monthMap.values()];
     }
 
     function generateAnalysisForFile(f, globalConfig){
@@ -1278,75 +1470,31 @@
       const baseAdminId = safeString(f.adminId);
 
       if (!baseAdminId || !targetRoomId) {
-        return {
-          summary: null,
-          dailyRows: [],
-          missButOtherRooms: [],
-          monthlyRows: [],
-          compareRow: null,
-          error: 'Admin ID veya oda ID eksik'
-        };
+        return { summary:null, dailyRows:[], missButOtherRooms:[], monthlyRows:[], compareRow:null, error:'Admin ID veya oda ID eksik' };
       }
 
       const relevantRows = f.rows.filter(r => r.adminId === baseAdminId || [...substitutionMap.values()].includes(r.adminId));
-
       if (!relevantRows.length) {
-        return {
-          summary: {
-            planned: 0, onTimeStart: 0, late: 0, early: 0, absent: 0, leave: leaveDates.size, substitution: substitutionMap.size,
-            totalGap: 0, totalOtherRoom: 0
-          },
-          dailyRows: [],
-          missButOtherRooms: [],
-          monthlyRows: [],
-          compareRow: null,
-          error: null
-        };
+        const emptySummary = summarizeDailyRows([]);
+        return { summary:emptySummary, dailyRows:[], missButOtherRooms:[], monthlyRows:[], compareRow:null, error:null };
       }
 
       const minDate = relevantRows[0].startTR.startOf('day');
       const maxDate = relevantRows[relevantRows.length - 1].endTR.startOf('day');
-
       const dailyRows = [];
       const missButOtherRooms = [];
 
       for (let cur = minDate; cur <= maxDate; cur = cur.plus({ days:1 })) {
         const iso = cur.toISODate();
+        const dayTR = cur.setLocale('tr').toFormat('cccc');
         const dayKey = getScheduleDayKey(cur);
 
         if (!f.weeklySchedule[dayKey]) {
-          dailyRows.push({
-            date: iso,
-            dayTR: cur.setLocale('tr').toFormat('cccc'),
-            status: 'Plan dışı',
-            firstEntry: '-',
-            lastExit: '-',
-            lateMin: 0,
-            earlyMin: 0,
-            gapCount: 0,
-            totalGapMin: 0,
-            otherRoomMin: 0,
-            otherRoomsText: '-',
-            note: '-'
-          });
+          dailyRows.push(createEmptyDailyRow(iso, dayTR, STATUS.OFF_PLAN));
           continue;
         }
-
         if (leaveDates.has(iso)) {
-          dailyRows.push({
-            date: iso,
-            dayTR: cur.setLocale('tr').toFormat('cccc'),
-            status: 'İzinli',
-            firstEntry: '-',
-            lastExit: '-',
-            lateMin: 0,
-            earlyMin: 0,
-            gapCount: 0,
-            totalGapMin: 0,
-            otherRoomMin: 0,
-            otherRoomsText: '-',
-            note: '-'
-          });
+          dailyRows.push(createEmptyDailyRow(iso, dayTR, STATUS.LEAVE));
           continue;
         }
 
@@ -1354,7 +1502,6 @@
         const activeAdminId = substituteAdminId || baseAdminId;
         const isSubstitution = !!substituteAdminId;
         const schedule = buildScheduleWindow(iso, f.startTime, f.endTime);
-
         const activeRows = f.rows.filter(r => r.adminId === activeAdminId);
 
         const selfRoomIntervals = activeRows
@@ -1366,15 +1513,13 @@
           .filter(r => r.roomId !== targetRoomId)
           .map(r => {
             const clipped = clipInterval(r.startTR, r.endTR, schedule.start, schedule.end);
-            return clipped ? { ...clipped, roomId: r.roomId } : null;
+            return clipped ? { ...clipped, roomId:r.roomId } : null;
           })
           .filter(Boolean);
 
         const mergedSelf = mergeIntervals(selfRoomIntervals);
-        const totalSelfMinutes = mergedSelf.reduce((sum, it) => sum + Math.round((it.end.toMillis() - it.start.toMillis()) / 60000), 0);
-
         const firstEntry = mergedSelf.length ? mergedSelf[0].start : null;
-        const lastExit = mergedSelf.length ? mergedSelf[mergedSelf.length-1].end : null;
+        const lastExit = mergedSelf.length ? mergedSelf[mergedSelf.length - 1].end : null;
 
         const otherRoomMap = new Map();
         let totalOtherRoomMin = 0;
@@ -1383,398 +1528,450 @@
           totalOtherRoomMin += mins;
           otherRoomMap.set(item.roomId, (otherRoomMap.get(item.roomId) || 0) + mins);
         }
-
-        const otherRoomsText = [...otherRoomMap.entries()]
-          .map(([room, min]) => `${room}: ${min} dk`)
-          .join(', ') || '-';
+        const otherRoomsText = [...otherRoomMap.entries()].map(([room, min]) => `${room}: ${min} dk`).join(', ') || '-';
 
         let gapCount = 0;
         let totalGapMin = 0;
+        let ignoredGapCount = 0;
+        let ignoredGapMin = 0;
 
-        if (mergedSelf.length > 0) {
-          if (firstEntry > schedule.start) {
-            const mins = Math.round((firstEntry.toMillis() - schedule.start.toMillis()) / 60000);
+        function handleGap(mins){
+          if (mins <= 0) return;
+          if (mins >= globalConfig.shortGapThreshold) {
+            gapCount++;
             totalGapMin += mins;
-            if (mins >= globalConfig.shortGapThreshold) gapCount++;
-          }
-
-          for (let i=0; i<mergedSelf.length-1; i++) {
-            const gap = Math.round((mergedSelf[i+1].start.toMillis() - mergedSelf[i].end.toMillis()) / 60000);
-            if (gap > 0) {
-              totalGapMin += gap;
-              if (gap >= globalConfig.shortGapThreshold) gapCount++;
-            }
-          }
-
-          if (lastExit < schedule.end) {
-            const mins = Math.round((schedule.end.toMillis() - lastExit.toMillis()) / 60000);
-            totalGapMin += mins;
-            if (mins >= globalConfig.shortGapThreshold) gapCount++;
+          } else {
+            ignoredGapCount++;
+            ignoredGapMin += mins;
           }
         }
 
-        let lateMin = 0;
-        let earlyMin = 0;
-        if (firstEntry) lateMin = Math.max(0, Math.round((firstEntry.toMillis() - schedule.start.toMillis()) / 60000));
-        if (lastExit) earlyMin = Math.max(0, Math.round((schedule.end.toMillis() - lastExit.toMillis()) / 60000));
+        if (mergedSelf.length > 0) {
+          for (let i = 0; i < mergedSelf.length - 1; i++) {
+            const gap = Math.round((mergedSelf[i + 1].start.toMillis() - mergedSelf[i].end.toMillis()) / 60000);
+            handleGap(gap);
+          }
+        }
 
-        let status = 'Sorunsuz';
+        const lateMin = firstEntry ? Math.max(0, Math.round((firstEntry.toMillis() - schedule.start.toMillis()) / 60000)) : 0;
+        const earlyMin = lastExit ? Math.max(0, Math.round((schedule.end.toMillis() - lastExit.toMillis()) / 60000)) : 0;
+
+        let status = STATUS.CLEAN;
         let note = '-';
 
         if (!mergedSelf.length) {
           if (totalOtherRoomMin > 0) {
-            status = 'Yayına gelmedi, başka odada aktif';
+            status = STATUS.ABSENT_OTHER_ROOM;
             missButOtherRooms.push({
-              date: iso,
-              adminName: f.adminName || f.fileName,
-              adminId: baseAdminId,
-              roomId: targetRoomId,
-              details: [...otherRoomMap.entries()].map(([room, min]) => ({ room, min })),
-              total: totalOtherRoomMin
+              date:iso,
+              adminName:f.adminName || f.fileName,
+              adminId:baseAdminId,
+              roomId:targetRoomId,
+              details:[...otherRoomMap.entries()].map(([room, min]) => ({ room, min })),
+              total:totalOtherRoomMin
             });
           } else {
-            status = 'Hiç gelmedi';
+            status = STATUS.ABSENT;
           }
         } else {
           const lateFlag = lateMin > globalConfig.lateTolerance;
           const earlyFlag = earlyMin > globalConfig.earlyTolerance;
           const gapFlag = gapCount > 0;
+          const suspiciousShortGapFlag = ignoredGapCount >= 3 || ignoredGapMin >= 10;
           const otherFlag = totalOtherRoomMin > 0;
 
-          if (lateFlag && earlyFlag) status = 'Geç başladı + Erken çıktı';
-          else if (lateFlag) status = 'Geç başladı';
-          else if (earlyFlag) status = 'Erken çıktı';
-          else if (gapFlag) status = 'Kesinti var';
-          else if (otherFlag) status = 'Başka odada aktif';
-          else status = 'Sorunsuz';
+          if (lateFlag && earlyFlag) status = STATUS.LATE_EARLY;
+          else if (lateFlag) status = STATUS.LATE;
+          else if (earlyFlag) status = STATUS.EARLY;
+          else if (gapFlag) status = STATUS.GAP;
+          else if (suspiciousShortGapFlag) status = STATUS.SHORT_GAP;
+          else if (otherFlag) status = STATUS.OTHER_ROOM;
+          else status = STATUS.CLEAN;
 
-          if (isSubstitution && status === 'Sorunsuz') status = 'Temsil ile tamamlandı';
+          if (isSubstitution && status === STATUS.CLEAN) status = STATUS.SUBSTITUTE_OK;
         }
 
-        if (isSubstitution && note === '-') {
-          note = `Temsilci Admin ID: ${substituteAdminId}`;
-        }
+        if (isSubstitution) note = `Temsilci Admin ID: ${substituteAdminId}`;
 
-        dailyRows.push({
-          date: iso,
-          dayTR: cur.setLocale('tr').toFormat('cccc'),
+        const row = {
+          date:iso,
+          dayTR,
           status,
-          firstEntry: firstEntry ? firstEntry.toFormat('HH:mm') : '-',
-          lastExit: lastExit ? lastExit.toFormat('HH:mm') : '-',
+          firstEntry:firstEntry ? firstEntry.toFormat('HH:mm') : '-',
+          lastExit:lastExit ? lastExit.toFormat('HH:mm') : '-',
           lateMin,
           earlyMin,
           gapCount,
           totalGapMin,
-          otherRoomMin: totalOtherRoomMin,
+          ignoredGapCount,
+          ignoredGapMin,
+          otherRoomMin:totalOtherRoomMin,
           otherRoomsText,
-          note
-        });
+          note,
+          riskScore:0
+        };
+        row.riskScore = getRiskScore(row);
+        dailyRows.push(row);
       }
 
-      const plannedRows = dailyRows.filter(r => !['Plan dışı','İzinli'].includes(r.status));
-      const summary = {
-        planned: dailyRows.filter(r => r.status !== 'Plan dışı').length,
-        onTimeStart: dailyRows.filter(r => r.status === 'Sorunsuz' || r.status === 'Temsil ile tamamlandı').length,
-        late: dailyRows.filter(r => ['Geç başladı','Geç başladı + Erken çıktı'].includes(r.status)).length,
-        early: dailyRows.filter(r => ['Erken çıktı','Geç başladı + Erken çıktı'].includes(r.status)).length,
-        absent: dailyRows.filter(r => ['Hiç gelmedi','Yayına gelmedi, başka odada aktif'].includes(r.status)).length,
-        leave: dailyRows.filter(r => r.status === 'İzinli').length,
-        substitution: dailyRows.filter(r => r.note.startsWith('Temsilci')).length,
-        totalGap: dailyRows.reduce((sum, r) => sum + r.totalGapMin, 0),
-        totalOtherRoom: dailyRows.reduce((sum, r) => sum + r.otherRoomMin, 0)
-      };
-
-      const monthMap = new Map();
-      dailyRows.forEach(r => {
-        const key = r.date.slice(0,7);
-        if (!monthMap.has(key)) {
-          monthMap.set(key, {
-            month:key, planned:0, leave:0, substitution:0, late:0, early:0, absent:0, gap:0, other:0
-          });
-        }
-        const m = monthMap.get(key);
-        if (r.status !== 'Plan dışı') m.planned++;
-        if (r.status === 'İzinli') m.leave++;
-        if (r.note.startsWith('Temsilci')) m.substitution++;
-        if (['Geç başladı','Geç başladı + Erken çıktı'].includes(r.status)) m.late++;
-        if (['Erken çıktı','Geç başladı + Erken çıktı'].includes(r.status)) m.early++;
-        if (['Hiç gelmedi','Yayına gelmedi, başka odada aktif'].includes(r.status)) m.absent++;
-        m.gap += r.totalGapMin;
-        m.other += r.otherRoomMin;
-      });
-
-      const monthlyRows = [...monthMap.values()];
-      const validOperationalDays = dailyRows.filter(r => !['Plan dışı','İzinli'].includes(r.status)).length || 1;
+      const summary = summarizeDailyRows(dailyRows);
+      const monthlyRows = buildMonthlyRows(dailyRows);
+      const operationalDays = Math.max(1, summary.operationalDays);
 
       const compareRow = {
-        adminName: f.adminName || f.fileName,
-        adminId: baseAdminId,
-        roomId: targetRoomId,
-        planned: validOperationalDays,
-        late: summary.late,
-        early: summary.early,
-        absent: summary.absent,
-        totalGap: summary.totalGap,
-        totalOther: summary.totalOtherRoom,
-        wrongRoomAbsentDays: missButOtherRooms.length,
-        onTimeRate: Math.round(((validOperationalDays - summary.late - summary.absent) / validOperationalDays) * 100)
+        adminName:f.adminName || f.fileName,
+        adminId:baseAdminId,
+        roomId:targetRoomId,
+        plannedDays:summary.plannedDays,
+        operationalDays:summary.operationalDays,
+        late:summary.late,
+        early:summary.early,
+        absent:summary.absent,
+        shortGapDays:summary.shortGapDays,
+        totalGap:summary.totalGap,
+        ignoredGap:summary.ignoredGap,
+        ignoredGapCount:summary.ignoredGapCount,
+        totalOther:summary.totalOtherRoom,
+        wrongRoomAbsentDays:missButOtherRooms.length,
+        riskScore: dailyRows.reduce((sum, r) => sum + r.riskScore, 0),
+        onTimeRate: Math.max(0, Math.round(((summary.operationalDays - summary.late - summary.absent) / operationalDays) * 100))
       };
 
-      return {
-        summary,
-        dailyRows,
-        missButOtherRooms,
-        monthlyRows,
-        compareRow,
-        error: null
-      };
+      return { summary, dailyRows, missButOtherRooms, monthlyRows, compareRow, error:null };
     }
 
     function analyzeAll(){
       if (!appState.files.length) {
-        alert('Önce dosya yükle.\n请先上传文件。');
+        alert('Önce dosya yükle.');
         return;
       }
-
       const globalConfig = {
-        lateTolerance: Number(document.getElementById('lateTolerance').value || 0),
-        earlyTolerance: Number(document.getElementById('earlyTolerance').value || 0),
-        shortGapThreshold: Number(document.getElementById('shortGapThreshold').value || 1)
+        lateTolerance:Number(document.getElementById('lateTolerance').value || 0),
+        earlyTolerance:Number(document.getElementById('earlyTolerance').value || 0),
+        shortGapThreshold:Number(document.getElementById('shortGapThreshold').value || 5)
       };
-
       const compareRows = [];
-
       for (const f of appState.files) {
         f.analysis = generateAnalysisForFile(f, globalConfig);
         if (f.analysis.compareRow) compareRows.push(f.analysis.compareRow);
       }
-
       appState.comparisonRows = compareRows;
       appState.analysisGenerated = true;
       renderAll();
-      switchTab('detail');
-    }
-
-    function renderAnalysisSection(f){
-      const a = f.analysis;
-      if (a.error) {
-        return `<div class="empty" style="min-height:240px">${escapeHtml(a.error)}</div>`;
-      }
-
-      return `
-        <div class="metrics">
-          <div class="metric-card">
-            <div class="metric-label">Toplam Planlı Gün<br>计划天数</div>
-            <div class="metric-value">${a.summary.planned}</div>
-            <div class="metric-note">İzinli hariç operasyon günleri dahil görünür</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Geç Kalma<br>迟到次数</div>
-            <div class="metric-value">${a.summary.late}</div>
-            <div class="metric-note">Tolerans üstü geç başlangıçlar</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Hiç Gelmeme<br>未到场次数</div>
-            <div class="metric-value">${a.summary.absent}</div>
-            <div class="metric-note">İzinli ve plan dışı hariç</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Başka Oda Süresi<br>其他房间时长</div>
-            <div class="metric-value">${a.summary.totalOtherRoom} dk</div>
-            <div class="metric-note">Yayın penceresi içinde</div>
-          </div>
-        </div>
-
-        <div class="big-card">
-          <h3 class="card-title">Yayına Gelmediği Halde Başka Odada Aktif Olduğu Günler</h3>
-          <p class="card-sub">未到自己直播间但在其他房间上麦的日期</p>
-          ${renderMissOtherRoomsTable(a.missButOtherRooms)}
-        </div>
-
-        <div class="big-card">
-          <h3 class="card-title">Aylık Özet</h3>
-          <p class="card-sub">月度汇总</p>
-          ${renderMonthlyTable(a.monthlyRows)}
-        </div>
-
-        <div class="big-card">
-          <h3 class="card-title">Günlük Detay</h3>
-          <p class="card-sub">每日详细记录</p>
-          ${renderDailyTable(a.dailyRows)}
-        </div>
-      `;
     }
 
     function renderMissOtherRoomsTable(rows){
-      if (!rows.length) {
-        return '<div class="empty" style="min-height:180px">Kayıt yok<br>无记录</div>';
-      }
+      if (!rows.length) return '<div class="empty" style="min-height:180px">Kayıt yok</div>';
       return `
-        <div class="table-wrap">
-          <table>
-            <thead>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Tarih<span class="zh">日期</span></th>
+            <th>Admin<span class="zh">管理员</span></th>
+            <th>Beklenen Oda<span class="zh">应在房间</span></th>
+            <th>Başka Odalar<span class="zh">其他房间</span></th>
+            <th>Toplam Dakika<span class="zh">总分钟</span></th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `
               <tr>
-                <th>Tarih<span class="zh">日期</span></th>
-                <th>Admin<span class="zh">管理员</span></th>
-                <th>Beklenen Oda<span class="zh">应在房间</span></th>
-                <th>Başka Odalar<span class="zh">其他房间</span></th>
-                <th>Toplam Dakika<span class="zh">总分钟</span></th>
+                <td>${escapeHtml(r.date)}</td>
+                <td>${escapeHtml(r.adminName)}<br>ID: ${escapeHtml(r.adminId)}</td>
+                <td>${escapeHtml(r.roomId)}</td>
+                <td>${r.details.map(d => `${escapeHtml(d.room)}: ${d.min} dk`).join('<br>')}</td>
+                <td>${r.total}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${rows.map(r => `
-                <tr>
-                  <td>${escapeHtml(r.date)}</td>
-                  <td>${escapeHtml(r.adminName)}<br>ID: ${escapeHtml(r.adminId)}</td>
-                  <td>${escapeHtml(r.roomId)}</td>
-                  <td>${r.details.map(d => `${escapeHtml(d.room)}: ${d.min} dk`).join('<br>')}</td>
-                  <td>${r.total}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+            `).join('')}
+          </tbody>
+        </table></div>
       `;
     }
 
     function renderMonthlyTable(rows){
-      if (!rows.length) {
-        return '<div class="empty" style="min-height:180px">Aylık veri yok<br>无月度数据</div>';
-      }
+      if (!rows.length) return '<div class="empty" style="min-height:180px">Aylık veri yok</div>';
       return `
-        <div class="table-wrap">
-          <table>
-            <thead>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Ay<span class="zh">月份</span></th>
+            <th>Planlı Gün<span class="zh">计划天数</span></th>
+            <th>Operasyon<span class="zh">运营天数</span></th>
+            <th>İzinli<span class="zh">请假</span></th>
+            <th>Temsil<span class="zh">代播</span></th>
+            <th>Geç<span class="zh">迟到</span></th>
+            <th>Erken<span class="zh">提前下播</span></th>
+            <th>Gelmeme<span class="zh">缺席</span></th>
+            <th>Kısa Kesinti Gün<span class="zh">短中断天数</span></th>
+            <th>Kesinti dk<span class="zh">中断分钟</span></th>
+            <th>Eşik Altı dk<span class="zh">阈值以下分钟</span></th>
+            <th>Kısa Kesinti Sayısı<span class="zh">短中断次数</span></th>
+            <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `
               <tr>
-                <th>Ay<span class="zh">月份</span></th>
-                <th>Planlı Gün<span class="zh">计划天数</span></th>
-                <th>İzinli<span class="zh">请假</span></th>
-                <th>Temsil<span class="zh">代播</span></th>
-                <th>Geç Kalma<span class="zh">迟到</span></th>
-                <th>Erken Çıkış<span class="zh">提前下播</span></th>
-                <th>Gelmeme<span class="zh">缺席</span></th>
-                <th>Kesinti dk<span class="zh">中断分钟</span></th>
-                <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+                <td>${escapeHtml(r.month)}</td>
+                <td>${r.planned}</td>
+                <td>${r.operational}</td>
+                <td>${r.leave}</td>
+                <td>${r.substitution}</td>
+                <td>${r.late}</td>
+                <td>${r.early}</td>
+                <td>${r.absent}</td>
+                <td>${r.shortGapDays}</td>
+                <td>${r.gap}</td>
+                <td>${r.ignoredGap}</td>
+                <td>${r.ignoredGapCount}</td>
+                <td>${r.other}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${rows.map(r => `
-                <tr>
-                  <td>${escapeHtml(r.month)}</td>
-                  <td>${r.planned}</td>
-                  <td>${r.leave}</td>
-                  <td>${r.substitution}</td>
-                  <td>${r.late}</td>
-                  <td>${r.early}</td>
-                  <td>${r.absent}</td>
-                  <td>${r.gap}</td>
-                  <td>${r.other}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+            `).join('')}
+          </tbody>
+        </table></div>
       `;
     }
 
     function renderDailyTable(rows){
-      if (!rows.length) {
-        return '<div class="empty" style="min-height:180px">Günlük veri yok<br>无每日数据</div>';
-      }
+      if (!rows.length) return '<div class="empty" style="min-height:180px">Filtreye uygun günlük veri yok</div>';
       return `
-        <div class="table-wrap">
-          <table>
-            <thead>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Tarih<span class="zh">日期</span></th>
+            <th>Gün<span class="zh">星期</span></th>
+            <th>Durum<span class="zh">状态</span></th>
+            <th>İlk Giriş<span class="zh">首次上麦</span></th>
+            <th>Son Çıkış<span class="zh">最后下麦</span></th>
+            <th>Geç dk<span class="zh">迟到分钟</span></th>
+            <th>Erken dk<span class="zh">提前分钟</span></th>
+            <th>Kesinti Sayısı<span class="zh">中断次数</span></th>
+            <th>Kesinti dk<span class="zh">中断分钟</span></th>
+            <th>Eşik Altı dk<span class="zh">阈值以下分钟</span></th>
+            <th>Kısa Kesinti Sayısı<span class="zh">短中断次数</span></th>
+            <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+            <th>Başka Odalar<span class="zh">其他房间</span></th>
+            <th>Not<span class="zh">备注</span></th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `
               <tr>
-                <th>Tarih<span class="zh">日期</span></th>
-                <th>Gün<span class="zh">星期</span></th>
-                <th>Durum<span class="zh">状态</span></th>
-                <th>İlk Giriş<span class="zh">首次上麦</span></th>
-                <th>Son Çıkış<span class="zh">最后下麦</span></th>
-                <th>Geç dk<span class="zh">迟到分钟</span></th>
-                <th>Erken dk<span class="zh">提前分钟</span></th>
-                <th>Kesinti<span class="zh">中断次数</span></th>
-                <th>Kesinti dk<span class="zh">中断分钟</span></th>
-                <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
-                <th>Başka Odalar<span class="zh">其他房间</span></th>
-                <th>Not<span class="zh">备注</span></th>
+                <td>${escapeHtml(r.date)}</td>
+                <td>${escapeHtml(r.dayTR)}</td>
+                <td><span class="status-chip ${getStatusClass(r.status)}">${escapeHtml(r.status)}</span></td>
+                <td>${escapeHtml(r.firstEntry)}</td>
+                <td>${escapeHtml(r.lastExit)}</td>
+                <td>${r.lateMin}</td>
+                <td>${r.earlyMin}</td>
+                <td>${r.gapCount}</td>
+                <td>${r.totalGapMin}</td>
+                <td>${r.ignoredGapMin}</td>
+                <td>${r.ignoredGapCount}</td>
+                <td>${r.otherRoomMin}</td>
+                <td>${escapeHtml(r.otherRoomsText)}</td>
+                <td>${escapeHtml(r.note)}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${rows.map(r => `
-                <tr>
-                  <td>${escapeHtml(r.date)}</td>
-                  <td>${escapeHtml(r.dayTR)}</td>
-                  <td><span class="status-chip ${getStatusClass(r.status)}">${escapeHtml(r.status)}</span></td>
-                  <td>${escapeHtml(r.firstEntry)}</td>
-                  <td>${escapeHtml(r.lastExit)}</td>
-                  <td>${r.lateMin}</td>
-                  <td>${r.earlyMin}</td>
-                  <td>${r.gapCount}</td>
-                  <td>${r.totalGapMin}</td>
-                  <td>${r.otherRoomMin}</td>
-                  <td>${escapeHtml(r.otherRoomsText)}</td>
-                  <td>${escapeHtml(r.note)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+            `).join('')}
+          </tbody>
+        </table></div>
       `;
     }
 
     function renderComparison(){
+      const leaderboardWrap = document.getElementById('leaderboardWrap');
       if (!appState.analysisGenerated || !appState.comparisonRows.length) {
         compareContent.className = 'empty';
-        compareContent.innerHTML = 'Karşılaştırma için analiz üret<br>请先生成分析';
+        compareContent.innerHTML = 'Karşılaştırma için analiz üret';
+        leaderboardWrap.innerHTML = '<div class="empty" style="min-height:160px">Henüz karşılaştırma verisi yok</div>';
+        document.getElementById('globalAverageWrap').innerHTML = '';
         return;
       }
 
-      compareContent.className = '';
-      compareContent.innerHTML = `
-        <div class="big-card">
-          <h3 class="card-title">Admin Karşılaştırma Tablosu</h3>
-          <p class="card-sub">管理员对比表</p>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Admin<span class="zh">管理员</span></th>
-                  <th>ID<span class="zh">编号</span></th>
-                  <th>Oda<span class="zh">房间</span></th>
-                  <th>Planlı Gün<span class="zh">计划天数</span></th>
-                  <th>Geç<span class="zh">迟到</span></th>
-                  <th>Erken<span class="zh">提前下播</span></th>
-                  <th>Gelmeme<span class="zh">缺席</span></th>
-                  <th>Kesinti dk<span class="zh">中断分钟</span></th>
-                  <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
-                  <th>Kendi Yayınına Gelmeyip Başka Odada Olduğu Gün<span class="zh">未到自己直播间但在其他房间的天数</span></th>
-                  <th>Zamanında Başlama Oranı<span class="zh">准时率</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                ${appState.comparisonRows
-                  .sort((a,b) => b.onTimeRate - a.onTimeRate)
-                  .map(r => `
-                    <tr>
-                      <td>${escapeHtml(r.adminName)}</td>
-                      <td>${escapeHtml(r.adminId)}</td>
-                      <td>${escapeHtml(r.roomId)}</td>
-                      <td>${r.planned}</td>
-                      <td>${r.late}</td>
-                      <td>${r.early}</td>
-                      <td>${r.absent}</td>
-                      <td>${r.totalGap}</td>
-                      <td>${r.totalOther}</td>
-                      <td>${r.wrongRoomAbsentDays}</td>
-                      <td>${r.onTimeRate}%</td>
-                    </tr>
-                  `).join('')}
-              </tbody>
-            </table>
-          </div>
+      const rows = [...appState.comparisonRows];
+      const byOnTime = [...rows].sort((a,b) => b.onTimeRate - a.onTimeRate);
+      const byRisk = [...rows].sort((a,b) => b.riskScore - a.riskScore);
+      const byOther = [...rows].sort((a,b) => b.totalOther - a.totalOther);
+      const byShortGap = [...rows].sort((a,b) => (b.ignoredGap + b.ignoredGapCount) - (a.ignoredGap + a.ignoredGapCount));
+
+      const best = byOnTime[0];
+      const worst = byRisk[0];
+      const highestOther = byOther[0];
+      const highestShortGap = byShortGap[0];
+      const avg = Math.round(rows.reduce((s,r) => s + r.onTimeRate, 0) / rows.length);
+
+      leaderboardWrap.innerHTML = `
+        <div class="rank-card">
+          <div class="rank-label">En İyi Zamanında Başlama</div>
+          <div class="rank-main">${escapeHtml(best.adminName)}</div>
+          <div class="rank-sub">${best.onTimeRate}% | Geç: ${best.late} | Gelmeme: ${best.absent}</div>
+        </div>
+        <div class="rank-card">
+          <div class="rank-label">En Riskli Admin</div>
+          <div class="rank-main">${escapeHtml(worst.adminName)}</div>
+          <div class="rank-sub">Risk skoru: ${worst.riskScore} | Gelmeme: ${worst.absent}</div>
+        </div>
+        <div class="rank-card">
+          <div class="rank-label">En Yüksek Başka Oda Süresi</div>
+          <div class="rank-main">${escapeHtml(highestOther.adminName)}</div>
+          <div class="rank-sub">${highestOther.totalOther} dk | Yanlış oda gün: ${highestOther.wrongRoomAbsentDays}</div>
+        </div>
+        <div class="rank-card">
+          <div class="rank-label">En Yoğun Kısa Kesinti</div>
+          <div class="rank-main">${escapeHtml(highestShortGap.adminName)}</div>
+          <div class="rank-sub">${highestShortGap.ignoredGap} dk | ${highestShortGap.ignoredGapCount} kısa hareket</div>
         </div>
       `;
+
+      document.getElementById('globalAverageWrap').innerHTML = `
+        <div class="progress-wrap">
+          <div class="progress"><span style="width:${avg}%"></span></div>
+          <div class="progress-text">${avg}%</div>
+        </div>
+      `;
+
+      compareContent.className = '';
+      compareContent.innerHTML = `
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Admin<span class="zh">管理员</span></th>
+            <th>ID<span class="zh">编号</span></th>
+            <th>Oda<span class="zh">房间</span></th>
+            <th>Planlı Gün<span class="zh">计划天数</span></th>
+            <th>Operasyon Gün<span class="zh">运营天数</span></th>
+            <th>Geç<span class="zh">迟到</span></th>
+            <th>Erken<span class="zh">提前下播</span></th>
+            <th>Gelmeme<span class="zh">缺席</span></th>
+            <th>Kısa Kesinti Gün<span class="zh">短中断天数</span></th>
+            <th>Kesinti dk<span class="zh">中断分钟</span></th>
+            <th>Eşik Altı dk<span class="zh">阈值以下分钟</span></th>
+            <th>Kısa Hareket<span class="zh">短动作次数</span></th>
+            <th>Başka Oda dk<span class="zh">其他房间分钟</span></th>
+            <th>Yanlış Oda Gün<span class="zh">错误房间天数</span></th>
+            <th>Risk Skoru<span class="zh">风险分</span></th>
+            <th>Zamanında Başlama<span class="zh">准时率</span></th>
+          </tr></thead>
+          <tbody>
+            ${rows.sort((a,b) => b.onTimeRate - a.onTimeRate).map(r => `
+              <tr>
+                <td>${escapeHtml(r.adminName)}</td>
+                <td>${escapeHtml(r.adminId)}</td>
+                <td>${escapeHtml(r.roomId)}</td>
+                <td>${r.plannedDays}</td>
+                <td>${r.operationalDays}</td>
+                <td>${r.late}</td>
+                <td>${r.early}</td>
+                <td>${r.absent}</td>
+                <td>${r.shortGapDays}</td>
+                <td>${r.totalGap}</td>
+                <td>${r.ignoredGap}</td>
+                <td>${r.ignoredGapCount}</td>
+                <td>${r.totalOther}</td>
+                <td>${r.wrongRoomAbsentDays}</td>
+                <td>${r.riskScore}</td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress"><span style="width:${r.onTimeRate}%"></span></div>
+                    <div class="progress-text">${r.onTimeRate}%</div>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>
+      `;
+    }
+
+    function addPdfTitle(doc, title, subtitle=''){
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text(title, 14, 18);
+      if (subtitle) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(subtitle, 14, 24);
+      }
+    }
+
+    function downloadCombinedPdf(){
+      if (!appState.analysisGenerated || !appState.files.some(f => f.analysis && !f.analysis.error)) {
+        alert('Önce analiz üret.');
+        return;
+      }
+
+      const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
+      const createdAt = DateTime.now().setZone('Europe/Istanbul').toFormat('dd.MM.yyyy HH:mm');
+      addPdfTitle(doc, 'YAVER Admin Toplu Analiz Raporu', `Olusturma: ${createdAt}`);
+
+      doc.autoTable({
+        startY:34,
+        head:[[ 'Admin', 'ID', 'Oda', 'Planli', 'Operasyon', 'Gec', 'Erken', 'Gelmeme', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk', 'Yanlis Oda Gun', 'Risk', 'Zamaninda %' ]],
+        body: appState.comparisonRows.slice().sort((a,b) => b.onTimeRate - a.onTimeRate).map(r => [
+          r.adminName, r.adminId, r.roomId, r.plannedDays, r.operationalDays, r.late, r.early, r.absent,
+          r.shortGapDays, r.totalGap, r.ignoredGap, r.ignoredGapCount, r.totalOther, r.wrongRoomAbsentDays, r.riskScore, `${r.onTimeRate}%`
+        ]),
+        styles:{ font:'helvetica', fontSize:7, cellPadding:4 },
+        headStyles:{ fillColor:[245,196,0], textColor:[17,17,17] },
+        margin:{ left:14, right:14 }
+      });
+
+      for (const f of appState.files) {
+        const a = f.analysis;
+        if (!a || a.error) continue;
+
+        doc.addPage('a4', 'landscape');
+        addPdfTitle(doc, `${f.adminName || f.fileName} Analizi`, `ID: ${f.adminId || '-'} | Oda: ${f.roomId || '-'} | Saat: ${f.startTime} - ${f.endTime}`);
+
+        doc.autoTable({
+          startY:34,
+          head:[[ 'Planli Gun', 'Operasyon', 'Gec', 'Erken', 'Gelmeme', 'Izinli', 'Temsil', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk' ]],
+          body:[[ a.summary.plannedDays, a.summary.operationalDays, a.summary.late, a.summary.early, a.summary.absent, a.summary.leave, a.summary.substitution, a.summary.shortGapDays, a.summary.totalGap, a.summary.ignoredGap, a.summary.ignoredGapCount, a.summary.totalOtherRoom ]],
+          styles:{ font:'helvetica', fontSize:8, cellPadding:4 },
+          headStyles:{ fillColor:[245,196,0], textColor:[17,17,17] },
+          margin:{ left:14, right:14 }
+        });
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 14,
+          head:[[ 'Ay', 'Planli', 'Operasyon', 'Izinli', 'Temsil', 'Gec', 'Erken', 'Gelmeme', 'Kisa Kesinti Gun', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk' ]],
+          body:(a.monthlyRows || []).map(r => [ r.month, r.planned, r.operational, r.leave, r.substitution, r.late, r.early, r.absent, r.shortGapDays, r.gap, r.ignoredGap, r.ignoredGapCount, r.other ]),
+          styles:{ font:'helvetica', fontSize:7, cellPadding:4 },
+          headStyles:{ fillColor:[99,168,255], textColor:[255,255,255] },
+          margin:{ left:14, right:14 }
+        });
+
+        const dailyRows = a.dailyRows || [];
+        if (dailyRows.length) {
+          doc.addPage('a4', 'landscape');
+          addPdfTitle(doc, `${f.adminName || f.fileName} - Gunluk Detay`, `ID: ${f.adminId || '-'} | Oda: ${f.roomId || '-'}`);
+          doc.autoTable({
+            startY:34,
+            head:[[ 'Tarih', 'Gun', 'Durum', 'Ilk Giris', 'Son Cikis', 'Gec dk', 'Erken dk', 'Kesinti', 'Kesinti dk', 'Esik Alti dk', 'Kisa Hareket', 'Baska Oda dk', 'Not' ]],
+            body: dailyRows.map(r => [ r.date, r.dayTR, r.status, r.firstEntry, r.lastExit, r.lateMin, r.earlyMin, r.gapCount, r.totalGapMin, r.ignoredGapMin, r.ignoredGapCount, r.otherRoomMin, r.note ]),
+            styles:{ font:'helvetica', fontSize:6.5, cellPadding:3, overflow:'linebreak' },
+            headStyles:{ fillColor:[182,137,255], textColor:[255,255,255] },
+            margin:{ left:14, right:14 },
+            rowPageBreak:'auto'
+          });
+        }
+
+        if (a.missButOtherRooms && a.missButOtherRooms.length) {
+          doc.addPage('a4', 'landscape');
+          addPdfTitle(doc, `${f.adminName || f.fileName} - Yanlis Oda Detayi`, `ID: ${f.adminId || '-'} | Oda: ${f.roomId || '-'}`);
+          doc.autoTable({
+            startY:34,
+            head:[[ 'Tarih', 'Admin', 'Beklenen Oda', 'Baska Odalar', 'Toplam dk' ]],
+            body:a.missButOtherRooms.map(r => [ r.date, `${r.adminName} | ${r.adminId}`, r.roomId, r.details.map(d => `${d.room}: ${d.min} dk`).join(' | '), r.total ]),
+            styles:{ font:'helvetica', fontSize:8, cellPadding:4, overflow:'linebreak' },
+            headStyles:{ fillColor:[236,108,97], textColor:[255,255,255] },
+            margin:{ left:14, right:14 }
+          });
+        }
+      }
+
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text(`Sayfa ${i} / ${pageCount}`, doc.internal.pageSize.getWidth() - 70, doc.internal.pageSize.getHeight() - 10);
+      }
+
+      doc.save(`YAVER_Toplu_Analiz_${DateTime.now().toFormat('yyyyMMdd_HHmm')}.pdf`);
     }
 
     function escapeHtml(str){
@@ -1786,10 +1983,9 @@
         .replaceAll("'",'&#39;');
     }
 
-    function escapeAttr(str){
-      return escapeHtml(str).replaceAll('\n', '&#10;');
-    }
+    function escapeAttr(str){ return escapeHtml(str).replaceAll('\n', '&#10;'); }
 
+    initGlobalDefaults();
     renderAll();
   </script>
 </body>
