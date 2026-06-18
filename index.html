@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAVER Admin Takip Sistemi Pro v2</title>
+  <title>YAVER Admin Takip Sistemi Pro v4</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"></script>
@@ -12,6 +12,50 @@
 
   <style>
     :root{
+      color-scheme:dark;
+      --bg:#0f172a;
+      --bg2:#111827;
+      --panel:#172033;
+      --panel2:#1e293b;
+      --panel3:#24324a;
+      --line:#334155;
+      --line2:#26364c;
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --muted2:#94a3b8;
+      --yellow:#facc15;
+      --yellow2:#fde047;
+      --green:#22c55e;
+      --red:#ef4444;
+      --blue:#38bdf8;
+      --purple:#a78bfa;
+      --orange:#fb923c;
+      --shadow:0 18px 55px rgba(0,0,0,.30);
+      --r-xl:26px;
+      --r-lg:20px;
+      --r-md:15px;
+      --soft-yellow:rgba(250,204,21,.14);
+      --soft-green:rgba(34,197,94,.14);
+      --soft-red:rgba(239,68,68,.14);
+      --soft-blue:rgba(56,189,248,.14);
+      --soft-purple:rgba(167,139,250,.14);
+      --soft-orange:rgba(251,146,60,.14);
+      --glow-yellow:rgba(250,204,21,.08);
+      --glow-blue:rgba(56,189,248,.07);
+      --surface-glass:rgba(255,255,255,.035);
+      --surface-glass-2:rgba(255,255,255,.02);
+      --metric-bg:rgba(15,23,42,.62);
+      --box-bg:rgba(15,23,42,.48);
+      --table-bg:#111827;
+      --thead-bg:#1e293b;
+      --tbody-hover:#172238;
+      --action-bg:rgba(15,23,42,.92);
+      --input-bg:#1e293b;
+      --modal-bg:#111827;
+      --on-accent:#111827;
+    }
+    :root[data-theme="classic-dark"]{
+      color-scheme:dark;
       --bg:#070a10;
       --bg2:#0d121b;
       --panel:#111824;
@@ -30,34 +74,84 @@
       --purple:#b689ff;
       --orange:#ffb85b;
       --shadow:0 18px 55px rgba(0,0,0,.36);
-      --r-xl:26px;
-      --r-lg:20px;
-      --r-md:15px;
       --soft-yellow:rgba(245,196,0,.12);
       --soft-green:rgba(57,201,122,.12);
       --soft-red:rgba(236,108,97,.12);
       --soft-blue:rgba(99,168,255,.12);
       --soft-purple:rgba(182,137,255,.12);
       --soft-orange:rgba(255,184,91,.12);
+      --glow-yellow:rgba(245,196,0,.07);
+      --glow-blue:rgba(99,168,255,.06);
+      --surface-glass:rgba(255,255,255,.025);
+      --surface-glass-2:rgba(255,255,255,.01);
+      --metric-bg:rgba(10,14,20,.48);
+      --box-bg:rgba(10,14,20,.34);
+      --table-bg:#0e141d;
+      --thead-bg:#151e2a;
+      --tbody-hover:#131c28;
+      --action-bg:rgba(13,18,27,.92);
+      --input-bg:#151e2b;
+      --modal-bg:#0e141d;
+      --on-accent:#111;
+    }
+    :root[data-theme="light"]{
+      color-scheme:light;
+      --bg:#eef3f9;
+      --bg2:#f8fafc;
+      --panel:#ffffff;
+      --panel2:#f1f5f9;
+      --panel3:#e2e8f0;
+      --line:#d7dee9;
+      --line2:#e5eaf2;
+      --text:#0f172a;
+      --muted:#475569;
+      --muted2:#64748b;
+      --yellow:#ca8a04;
+      --yellow2:#eab308;
+      --green:#16a34a;
+      --red:#dc2626;
+      --blue:#0284c7;
+      --purple:#7c3aed;
+      --orange:#ea580c;
+      --shadow:0 18px 45px rgba(15,23,42,.10);
+      --soft-yellow:rgba(202,138,4,.13);
+      --soft-green:rgba(22,163,74,.12);
+      --soft-red:rgba(220,38,38,.12);
+      --soft-blue:rgba(2,132,199,.12);
+      --soft-purple:rgba(124,58,237,.12);
+      --soft-orange:rgba(234,88,12,.12);
+      --glow-yellow:rgba(202,138,4,.10);
+      --glow-blue:rgba(2,132,199,.09);
+      --surface-glass:rgba(255,255,255,.86);
+      --surface-glass-2:rgba(255,255,255,.72);
+      --metric-bg:#ffffff;
+      --box-bg:#ffffff;
+      --table-bg:#ffffff;
+      --thead-bg:#eaf0f8;
+      --tbody-hover:#f1f5f9;
+      --action-bg:rgba(255,255,255,.92);
+      --input-bg:#f8fafc;
+      --modal-bg:#ffffff;
+      --on-accent:#111827;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:radial-gradient(circle at top right, rgba(245,196,0,.07), transparent 28%),radial-gradient(circle at top left, rgba(99,168,255,.06), transparent 24%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:Inter,Segoe UI,Arial,"Noto Sans SC",sans-serif;min-height:100vh}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top right, var(--glow-yellow), transparent 28%),radial-gradient(circle at top left, var(--glow-blue), transparent 24%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:Inter,Segoe UI,Arial,"Noto Sans SC",sans-serif;min-height:100vh}
     button,input,select,textarea{font-family:inherit}
     .app{padding:20px;display:flex;flex-direction:column;gap:18px}
-    .hero,.panel,.card,.metric,.admin-card,.modal-card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));border:1px solid var(--line2);border-radius:var(--r-xl);box-shadow:var(--shadow)}
-    .hero{padding:22px 24px;display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:stretch;overflow:hidden;background:radial-gradient(circle at 94% 6%,rgba(245,196,0,.14),transparent 30%),linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))}
+    .hero,.panel,.card,.metric,.admin-card,.modal-card{background:linear-gradient(180deg,var(--surface-glass),var(--surface-glass-2));border:1px solid var(--line2);border-radius:var(--r-xl);box-shadow:var(--shadow)}
+    .hero{padding:22px 24px;display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:stretch;overflow:hidden;background:radial-gradient(circle at 94% 6%,var(--soft-yellow),transparent 30%),linear-gradient(180deg,var(--surface-glass),var(--surface-glass-2))}
     h1,h2,h3,h4,p{margin-top:0}
     .title{font-size:34px;font-weight:950;margin-bottom:8px;letter-spacing:.1px}
     .sub{color:var(--muted);font-size:13px;line-height:1.55;margin:0}
     .hero-actions{display:flex;flex-direction:column;gap:10px;justify-content:space-between}
     .quick-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:9px 12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:900;color:#dfe8f5}
+    .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:9px 12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:900;color:var(--text)}
     .pill.yellow{color:var(--yellow);background:var(--soft-yellow);border-color:rgba(245,196,0,.2)}
     .pill.green{color:#96efbc;background:var(--soft-green);border-color:rgba(57,201,122,.2)}
     .pill.red{color:#ffb9b2;background:var(--soft-red);border-color:rgba(236,108,97,.2)}
     .pill.blue{color:#bdd8ff;background:var(--soft-blue);border-color:rgba(99,168,255,.2)}
     .top-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
-    .metric{padding:15px;border-radius:20px;background:rgba(10,14,20,.48);box-shadow:none}
+    .metric{padding:15px;border-radius:20px;background:var(--metric-bg);box-shadow:none}
     .metric-label{color:var(--muted);font-size:12px;margin-bottom:8px}
     .metric-value{font-size:28px;line-height:1;font-weight:950;margin-bottom:6px}
     .metric-note{color:var(--muted2);font-size:11px;line-height:1.35}
@@ -67,9 +161,9 @@
     .section-title{font-size:18px;font-weight:950;margin-bottom:4px}
     .section-sub{font-size:12px;color:var(--muted);line-height:1.45;margin:0 0 12px}
     .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
-    .field label{font-size:12px;font-weight:900;color:#edf3fb;line-height:1.35}
+    .field label{font-size:12px;font-weight:900;color:var(--text);line-height:1.35}
     .field label .zh{display:block;color:var(--muted);font-weight:500;font-size:11px;margin-top:2px}
-    input[type="text"],input[type="number"],input[type="date"],select,textarea{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px 13px;font-size:14px;outline:none;transition:.16s ease}
+    input[type="text"],input[type="number"],input[type="date"],select,textarea{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px 13px;font-size:14px;outline:none;transition:.16s ease}
     input:focus,select:focus,textarea:focus{border-color:rgba(245,196,0,.52);box-shadow:0 0 0 3px rgba(245,196,0,.09)}
     textarea{min-height:95px;resize:vertical;line-height:1.45}
     input[type="file"]{width:100%;color:var(--muted);font-size:13px}
@@ -77,13 +171,13 @@
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
     button{border:none;border-radius:14px;padding:12px 14px;font-size:13px;font-weight:950;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.16s ease;line-height:1.2}
-    .btn-primary{background:var(--yellow);color:#111}.btn-primary:hover{background:var(--yellow2)}
+    .btn-primary{background:var(--yellow);color:var(--on-accent)}.btn-primary:hover{background:var(--yellow2)}
     .btn-secondary{background:rgba(255,255,255,.045);color:var(--text);border:1px solid var(--line)}.btn-secondary:hover{background:rgba(255,255,255,.07)}
     .btn-danger{background:var(--soft-red);color:#ffc0ba;border:1px solid rgba(236,108,97,.25)}.btn-danger:hover{background:rgba(236,108,97,.18)}
     .btn-mini{padding:8px 10px;font-size:12px;border-radius:12px}
     .tabs{display:flex;gap:10px;flex-wrap:wrap}
     .tab{border-radius:999px;background:rgba(255,255,255,.04);color:#d9e3ef;border:1px solid var(--line);padding:11px 15px}
-    .tab.active{background:var(--yellow);color:#111;border-color:transparent}
+    .tab.active{background:var(--yellow);color:var(--on-accent);border-color:transparent}
     .card{padding:16px;border-radius:22px;min-width:0}
     .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
     .card-title{font-size:17px;font-weight:950;margin-bottom:4px}
@@ -93,7 +187,7 @@
     .notice.good{background:var(--soft-green);border-color:rgba(57,201,122,.25);color:#a9f2c7}
     .admin-list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto;padding-right:4px}
     .admin-card{padding:13px;border-radius:18px;box-shadow:none;cursor:pointer;background:rgba(255,255,255,.018);transition:.16s ease;border-color:var(--line)}
-    .admin-card:hover{transform:translateY(-1px);border-color:#34465f}
+    .admin-card:hover{transform:translateY(-1px);border-color:var(--blue)}
     .admin-card.active{border-color:rgba(245,196,0,.6);background:radial-gradient(circle at top right,rgba(245,196,0,.12),transparent 45%),rgba(255,255,255,.025)}
     .admin-name{font-size:15px;font-weight:950;margin-bottom:7px;word-break:break-word}
     .admin-meta{font-size:12px;color:var(--muted);line-height:1.5}
@@ -104,24 +198,24 @@
     .b-red{background:var(--soft-red);color:#ffbeb8;border-color:rgba(236,108,97,.24)}
     .b-blue{background:var(--soft-blue);color:#bdd8ff;border-color:rgba(99,168,255,.24)}
     .b-purple{background:var(--soft-purple);color:#dfcbff;border-color:rgba(182,137,255,.24)}
-    .b-gray{background:rgba(255,255,255,.045);color:#cdd7e5;border-color:rgba(255,255,255,.08)}
+    .b-gray{background:rgba(255,255,255,.045);color:var(--muted);border-color:rgba(255,255,255,.08)}
     .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:11px}
-    .kpi{background:rgba(10,14,20,.42);border:1px solid var(--line);border-radius:18px;padding:14px}
+    .kpi{background:var(--metric-bg);border:1px solid var(--line);border-radius:18px;padding:14px}
     .kpi-label{font-size:12px;color:var(--muted);line-height:1.35;margin-bottom:8px}
     .kpi-value{font-size:25px;font-weight:950;line-height:1;margin-bottom:7px}
     .kpi-note{font-size:11px;color:var(--muted2);line-height:1.35}
     .admin-form{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
-    .box{border:1px solid var(--line);border-radius:18px;background:rgba(10,14,20,.34);padding:14px;min-width:0}
+    .box{border:1px solid var(--line);border-radius:18px;background:var(--box-bg);padding:14px;min-width:0}
     .weekday-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
-    .day-box{border:1px solid var(--line);border-radius:13px;padding:8px;text-align:center;background:var(--panel2);font-size:12px;font-weight:900;cursor:pointer}
+    .day-box{border:1px solid var(--line);border-radius:13px;padding:8px;text-align:center;background:var(--input-bg);font-size:12px;font-weight:900;cursor:pointer}
     .day-box input{display:block;margin:0 auto 5px;accent-color:var(--yellow)}
     .filters{display:grid;grid-template-columns:1.2fr .7fr .7fr .7fr;gap:10px}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#0d1219;max-width:100%}
-    table{width:100%;border-collapse:collapse;min-width:1100px;background:#0e141d}
-    thead th{position:sticky;top:0;z-index:2;background:#151e2a;color:#eef4fb;font-size:12px;text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:bottom;line-height:1.35}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--table-bg);max-width:100%}
+    table{width:100%;border-collapse:collapse;min-width:1100px;background:var(--table-bg)}
+    thead th{position:sticky;top:0;z-index:2;background:var(--thead-bg);color:var(--text);font-size:12px;text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:bottom;line-height:1.35}
     thead th .zh{display:block;color:var(--muted);font-size:10px;font-weight:500;margin-top:3px}
     tbody td{padding:10px 11px;border-bottom:1px solid rgba(255,255,255,.055);font-size:12px;line-height:1.45;vertical-align:top}
-    tbody tr:hover{background:#131c28}
+    tbody tr:hover{background:var(--tbody-hover)}
     .status-chip{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;border:1px solid transparent;white-space:nowrap}
     .s-green{background:var(--soft-green);color:#a1efc2;border-color:rgba(57,201,122,.24)}
     .s-yellow{background:var(--soft-orange);color:#ffd59d;border-color:rgba(255,184,91,.24)}
@@ -135,22 +229,47 @@
     .empty{min-height:220px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.55;background:rgba(255,255,255,.015)}
     .hidden{display:none!important}
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:1000;overflow:auto}
-    .modal-card{width:min(1120px,100%);padding:18px;background:#0e141d}
+    .modal-card{width:min(1120px,100%);padding:18px;background:var(--table-bg)}
     .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
     .bulk-table input,.bulk-table select{padding:8px 9px;border-radius:10px;font-size:12px;min-width:92px}
     .bulk-table .name-input{min-width:150px}.bulk-table .room-input{min-width:90px}
     .small{font-size:11px;color:var(--muted);line-height:1.45}
     .footer{font-size:11px;color:var(--muted2);text-align:center;padding:8px 0}
-    @media(max-width:1450px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.top-metrics{grid-template-columns:repeat(2,1fr)}.admin-form{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}.quick-row{justify-content:flex-start}}
+
+    .action-bar{position:sticky;top:12px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:20px;background:var(--action-bg);backdrop-filter:blur(12px);box-shadow:0 14px 35px rgba(0,0,0,.25)}
+    .action-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.action-right{display:flex;gap:8px;flex-wrap:wrap}.action-summary{font-size:12px;color:var(--muted);line-height:1.45}.action-summary b{color:var(--text)}
+    .stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}.step{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);padding:12px}.step-num{width:26px;height:26px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-weight:950;font-size:12px;margin-bottom:8px;background:rgba(255,255,255,.06);color:var(--muted)}.step.ok .step-num{background:var(--soft-green);color:#a3efc5}.step.warn .step-num{background:var(--soft-orange);color:#ffd59d}.step.bad .step-num{background:var(--soft-red);color:#ffbbb5}.step-title{font-size:13px;font-weight:950;margin-bottom:4px}.step-note{font-size:11px;color:var(--muted);line-height:1.4}
+    .prep-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check-list{display:flex;flex-direction:column;gap:10px}.check-item{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:12px;background:rgba(255,255,255,.02)}.check-icon{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:950}.check-item.ok .check-icon{background:var(--soft-green);color:#a3efc5}.check-item.warn .check-icon{background:var(--soft-orange);color:#ffd59d}.check-item.bad .check-icon{background:var(--soft-red);color:#ffbbb5}.check-title{font-weight:950;font-size:13px}.check-sub{font-size:11px;color:var(--muted);line-height:1.4;margin-top:3px}.next-box{border:1px solid rgba(245,196,0,.25);background:linear-gradient(135deg,rgba(245,196,0,.13),rgba(255,255,255,.02));border-radius:18px;padding:14px}.next-title{font-size:16px;font-weight:950;margin-bottom:6px}.next-sub{font-size:12px;color:#d9e3ef;line-height:1.55;margin-bottom:12px}
+    .empty-help{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:520px}.empty-help h3{margin:0;font-size:18px}.empty-help p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.empty-steps{text-align:left;color:var(--muted);font-size:12px;line-height:1.7;margin:0;padding-left:18px}.date-presets{display:flex;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}.risk-compact{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.compare-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.view-toggle.active{background:var(--yellow);color:var(--on-accent);border-color:transparent}
+    .bulk-inline-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.row-warn{color:#ffd59d;font-weight:950}.row-bad{color:#ffbbb5;font-weight:950}.pdf-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}.pdf-option{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(255,255,255,.02);display:flex;gap:10px;align-items:flex-start;font-size:13px}.pdf-option input{margin-top:2px;accent-color:var(--yellow)}
+
+
+    .theme-control{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.04)}
+    .theme-control span{font-size:12px;font-weight:950;color:var(--muted)}
+    .theme-control select{width:auto;min-width:150px;padding:7px 9px;border-radius:999px;font-size:12px;background:var(--input-bg);color:var(--text);border:1px solid var(--line)}
+    :root[data-theme="light"] .hero,
+    :root[data-theme="light"] .panel,
+    :root[data-theme="light"] .card,
+    :root[data-theme="light"] .metric,
+    :root[data-theme="light"] .admin-card,
+    :root[data-theme="light"] .modal-card{background:#ffffff}
+    :root[data-theme="light"] .notice,
+    :root[data-theme="light"] .step,
+    :root[data-theme="light"] .check-item,
+    :root[data-theme="light"] .pdf-option{background:#ffffff}
+    :root[data-theme="light"] .action-bar{box-shadow:0 14px 30px rgba(15,23,42,.10)}
+    :root[data-theme="light"] input[type="file"]{color:var(--muted)}
+
+    @media(max-width:1450px){.stepper{grid-template-columns:repeat(3,1fr)}.prep-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.top-metrics{grid-template-columns:repeat(2,1fr)}.admin-form{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}.quick-row{justify-content:flex-start}}
     @media(max-width:1080px){.layout{grid-template-columns:1fr}.sidebar{position:static;max-height:none}.grid-2,.grid-3{grid-template-columns:1fr}}
-    @media(max-width:760px){.app{padding:12px}.kpi-grid,.top-metrics,.filters{grid-template-columns:1fr}.weekday-grid{grid-template-columns:repeat(2,1fr)}.title{font-size:27px}}
+    @media(max-width:760px){.app{padding:12px}.stepper{grid-template-columns:1fr}.pdf-options{grid-template-columns:1fr}.action-bar{position:static}.kpi-grid,.top-metrics,.filters{grid-template-columns:1fr}.weekday-grid{grid-template-columns:repeat(2,1fr)}.title{font-size:27px}}
   </style>
 </head>
 <body>
   <div class="app">
     <section class="hero">
       <div>
-        <h1 class="title">YAVER Admin Takip Sistemi Pro v2</h1>
+        <h1 class="title">YAVER Admin Takip Sistemi Pro v4</h1>
         <p class="sub">Excel yükle, adminleri otomatik ayır, analiz dönemini seç, toplu profilleri düzenle, risk seviyesini ve nedenlerini gör, detaylı PDF al.<br>上传 Excel、自动拆分管理员、选择分析周期、批量编辑资料、查看风险等级和原因、导出详细 PDF。</p>
         <div class="top-metrics">
           <div class="metric"><div class="metric-label">Admin</div><div class="metric-value" id="mAdmin">0</div><div class="metric-note">Eşleşen admin profili</div></div>
@@ -164,6 +283,7 @@
           <span class="pill yellow">UTC → Türkiye Saati</span>
           <span class="pill blue">Tüm Sheet Taraması</span>
           <span class="pill green">Global Temsilci Kontrolü</span>
+          <label class="theme-control"><span>Tema</span><select id="themeSelect"><option value="executive-dark">Executive Dark</option><option value="light">Light</option><option value="classic-dark">Classic Dark</option></select></label>
         </div>
         <div class="notice good">Kritik düzeltme: analiz artık sadece dosyada kayıt görülen günlere bağlı değil. Başlangıç ve bitiş tarihine göre planlı günleri üretir, kayıt olmayan planlı günü devamsızlık olarak yakalar.</div>
       </div>
@@ -190,6 +310,7 @@
           <div class="field"><label>Başlangıç</label><input id="analysisStart" type="date" /></div>
           <div class="field"><label>Bitiş</label><input id="analysisEnd" type="date" /></div>
         </div>
+        <div class="date-presets"><button class="btn-secondary btn-mini" id="dateThisMonth" type="button">Bu Ay</button><button class="btn-secondary btn-mini" id="dateLastMonth" type="button">Geçen Ay</button><button class="btn-secondary btn-mini" id="dateLast7" type="button">Son 7 Gün</button></div>
 
         <h2 class="section-title" style="margin-top:18px">3. Yayın Kuralları</h2>
         <div class="grid-3">
@@ -203,8 +324,8 @@
         </div>
 
         <h2 class="section-title" style="margin-top:18px">4. Risk Ayarları</h2>
-        <details class="notice" open>
-          <summary style="cursor:pointer;font-weight:900;color:#eef4fb">Eşikler</summary>
+        <details class="notice">
+          <summary style="cursor:pointer;font-weight:900;color:var(--text)">Eşikler</summary>
           <div class="grid-2" style="margin-top:12px">
             <div class="field"><label>Orta risk geç sayısı</label><input id="riskLateMedium" type="number" min="1" value="3" /></div>
             <div class="field"><label>Orta risk erken sayısı</label><input id="riskEarlyMedium" type="number" min="1" value="3" /></div>
@@ -227,14 +348,47 @@
       </aside>
 
       <main class="main">
+        <div class="action-bar">
+          <div class="action-left">
+            <span class="badge b-blue" id="actionStatus">Hazırlık bekleniyor</span>
+            <div class="action-summary" id="actionSummary">Dosya yükle, eksikleri tamamla, analiz üret.</div>
+          </div>
+          <div class="action-right">
+            <button id="topUploadBtn" class="btn-secondary btn-mini" type="button">Excel Yükle</button>
+            <button id="topBulkBtn" class="btn-secondary btn-mini" type="button">Eksikleri Düzenle</button>
+            <button id="topAnalyzeBtn" class="btn-primary btn-mini" type="button">Analizi Başlat</button>
+            <button id="topPdfBtn" class="btn-secondary btn-mini" type="button">PDF İndir</button>
+          </div>
+        </div>
+
         <div class="tabs">
-          <button class="tab active" data-tab="detail">Admin Detayı</button>
+          <button class="tab active" data-tab="prep">Hazırlık</button>
+          <button class="tab" data-tab="bulk">Toplu Admin Ayarı</button>
+          <button class="tab" data-tab="detail">Analiz Sonuçları</button>
           <button class="tab" data-tab="compare">Karşılaştırma</button>
           <button class="tab" data-tab="quality">Veri Kalitesi</button>
+          <button class="tab" data-tab="pdf">PDF Rapor</button>
           <button class="tab" data-tab="guide">Rehber</button>
         </div>
 
-        <section id="tab-detail" class="tab-panel">
+        <section id="tab-prep" class="tab-panel">
+          <div id="prepContent" class="card"></div>
+        </section>
+
+        <section id="tab-bulk" class="tab-panel hidden">
+          <div class="card">
+            <div class="card-head">
+              <div><h3 class="card-title">Toplu Admin Ayarı</h3><p class="card-sub">Eksik oda, saat ve haftalık planları tek tabloda tamamla. Kırmızı alanlar analiz öncesi düzeltilmeli.</p></div>
+            </div>
+            <div class="bulk-inline-actions">
+              <div class="notice" style="margin:0">İpucu: Master liste yüklersen bu alanların çoğu otomatik dolar.</div>
+              <button id="saveInlineBulkBtn" class="btn-primary btn-mini" type="button">Toplu Ayarları Kaydet</button>
+            </div>
+            <div id="bulkInlineWrap" class="empty">Admin bulunamadı.</div>
+          </div>
+        </section>
+
+        <section id="tab-detail" class="tab-panel hidden">
           <div class="card">
             <div class="card-head">
               <div><h3 class="card-title">Admin Listesi</h3><p class="card-sub">Dosyalardan bulunan tüm adminler otomatik ayrılır.</p></div>
@@ -270,11 +424,21 @@
           </div>
         </section>
 
+        <section id="tab-pdf" class="tab-panel hidden">
+          <div class="card">
+            <div class="card-head">
+              <div><h3 class="card-title">PDF Rapor</h3><p class="card-sub">Raporu almadan önce kapsamı ve hazırlık durumunu kontrol et.</p></div>
+              <button id="pdfPanelBtn" class="btn-primary btn-mini" type="button">PDF Oluştur</button>
+            </div>
+            <div id="pdfContent"></div>
+          </div>
+        </section>
+
         <section id="tab-guide" class="tab-panel hidden">
           <div class="card">
             <h3 class="card-title">Kullanım Rehberi</h3>
             <div class="notice">
-              <b>Doğru sıra:</b> 1) Kayıt dosyalarını yükle. 2) Analiz dönemini seç. 3) Toplu Admin Ayarı ile oda ve saatleri kontrol et. 4) Analizi Başlat. 5) PDF indir.<br><br>
+              <b>Doğru sıra:</b> 1) Kayıt dosyalarını yükle. 2) Hazırlık ekranındaki eksikleri kontrol et. 3) Toplu Admin Ayarı ile oda ve saatleri tamamla. 4) Analizi Başlat. 5) PDF Rapor sekmesinden rapor al.<br><br>
               <b>Kesinti mantığı:</b> Geç başlama ve erken çıkış ayrı tutulur. Yayın içindeki boşluk 5 dk ve üstüyse gerçek kesinti sayılır. 5 dk altı boşluklar ceza dışı ama Eşik Altı alanında görünür.<br><br>
               <b>Devamsızlık:</b> Seçilen analiz döneminde planlı gün varsa ve admin o gün kendi odasında görünmüyorsa devamsızlık olarak işaretlenir. Bu yüzden analiz dönemi önemlidir.<br><br>
               <b>Risk seviyesi:</b> Yüksek risk, orta risk ve düşük risk olarak ayrılır. Risk Nedeni sütunu hangi kurala takıldığını açıklar.
@@ -283,7 +447,7 @@
         </section>
       </main>
     </section>
-    <div class="footer">YAVER Admin Takip Sistemi Pro v2</div>
+    <div class="footer">YAVER Admin Takip Sistemi Pro v4</div>
   </div>
 
   <div id="bulkModal" class="modal hidden">
@@ -323,7 +487,7 @@
     };
 
     const els = {
-      fileInput: document.getElementById('fileInput'), masterInput: document.getElementById('masterInput'), analyzeBtn: document.getElementById('analyzeBtn'), clearBtn: document.getElementById('clearBtn'), pdfBtn: document.getElementById('pdfBtn'), bulkBtn: document.getElementById('bulkBtn'), adminSearch: document.getElementById('adminSearch'), adminList: document.getElementById('adminList'), adminDetail: document.getElementById('adminDetail'), compareTable: document.getElementById('compareTable'), globalKpis: document.getElementById('globalKpis'), qualityContent: document.getElementById('qualityContent'), loadSummary: document.getElementById('loadSummary'), bulkModal: document.getElementById('bulkModal'), bulkTable: document.getElementById('bulkTable')
+      fileInput: document.getElementById('fileInput'), masterInput: document.getElementById('masterInput'), analyzeBtn: document.getElementById('analyzeBtn'), clearBtn: document.getElementById('clearBtn'), pdfBtn: document.getElementById('pdfBtn'), bulkBtn: document.getElementById('bulkBtn'), adminSearch: document.getElementById('adminSearch'), adminList: document.getElementById('adminList'), adminDetail: document.getElementById('adminDetail'), compareTable: document.getElementById('compareTable'), globalKpis: document.getElementById('globalKpis'), qualityContent: document.getElementById('qualityContent'), prepContent: document.getElementById('prepContent'), bulkInlineWrap: document.getElementById('bulkInlineWrap'), pdfContent: document.getElementById('pdfContent'), actionStatus: document.getElementById('actionStatus'), actionSummary: document.getElementById('actionSummary'), loadSummary: document.getElementById('bulkModal'), bulkTable: document.getElementById('bulkTable')
     };
 
     init();
@@ -332,6 +496,7 @@
       fillTimeSelect('defaultStart','22:00');
       fillTimeSelect('defaultEnd','24:00');
       restoreSettings();
+      initTheme();
       bindEvents();
       renderAll();
     }
@@ -342,13 +507,23 @@
       els.analyzeBtn.addEventListener('click', analyzeAll);
       els.clearBtn.addEventListener('click', clearAll);
       els.pdfBtn.addEventListener('click', downloadPdf);
-      els.bulkBtn.addEventListener('click', openBulkModal);
+      els.bulkBtn.addEventListener('click', () => switchTab('bulk'));
+      document.getElementById('topUploadBtn').addEventListener('click', () => els.fileInput.click());
+      document.getElementById('topBulkBtn').addEventListener('click', () => switchTab('bulk'));
+      document.getElementById('topAnalyzeBtn').addEventListener('click', analyzeAll);
+      document.getElementById('topPdfBtn').addEventListener('click', downloadPdf);
+      document.getElementById('pdfPanelBtn').addEventListener('click', downloadPdf);
+      document.getElementById('saveInlineBulkBtn').addEventListener('click', saveInlineBulkChanges);
+      document.getElementById('dateThisMonth').addEventListener('click', () => setDatePreset('thisMonth'));
+      document.getElementById('dateLastMonth').addEventListener('click', () => setDatePreset('lastMonth'));
+      document.getElementById('dateLast7').addEventListener('click', () => setDatePreset('last7'));
       document.getElementById('closeBulkBtn').addEventListener('click', () => els.bulkModal.classList.add('hidden'));
       document.getElementById('saveBulkBtn').addEventListener('click', saveBulkChanges);
       document.getElementById('exportCsvBtn').addEventListener('click', exportCompareCsv);
       els.adminSearch.addEventListener('input', e => { state.search = e.target.value.trim().toLowerCase(); renderAdminList(); });
       document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
       ['lateTolerance','earlyTolerance','gapThreshold','defaultStart','defaultEnd','riskLateMedium','riskEarlyMedium','riskIgnoredMin','riskIgnoredCount','riskAbsentHigh','riskScoreHigh','riskScoreMedium','riskOtherRoomMin'].forEach(id => document.getElementById(id).addEventListener('change', saveSettings));
+      document.getElementById('themeSelect').addEventListener('change', e => { applyTheme(e.target.value); saveSettings(); });
     }
 
     function switchTab(tab){
@@ -358,9 +533,9 @@
     }
 
     function saveSettings(){
-      const ids = ['lateTolerance','earlyTolerance','gapThreshold','defaultStart','defaultEnd','riskLateMedium','riskEarlyMedium','riskIgnoredMin','riskIgnoredCount','riskAbsentHigh','riskScoreHigh','riskScoreMedium','riskOtherRoomMin'];
+      const ids = ['lateTolerance','earlyTolerance','gapThreshold','defaultStart','defaultEnd','riskLateMedium','riskEarlyMedium','riskIgnoredMin','riskIgnoredCount','riskAbsentHigh','riskScoreHigh','riskScoreMedium','riskOtherRoomMin','themeSelect'];
       const data = {};
-      ids.forEach(id => data[id] = document.getElementById(id).value);
+      ids.forEach(id => { const el = document.getElementById(id); if(el) data[id] = el.value; });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
     }
     function restoreSettings(){
@@ -368,6 +543,18 @@
         const data = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
         Object.entries(data).forEach(([id,value]) => { const el = document.getElementById(id); if(el) el.value = value; });
       }catch{}
+    }
+    function initTheme(){
+      const select = document.getElementById('themeSelect');
+      const saved = select?.value || 'executive-dark';
+      applyTheme(saved);
+    }
+    function applyTheme(theme){
+      const normalized = theme === 'light' || theme === 'classic-dark' ? theme : 'executive-dark';
+      if(normalized === 'executive-dark') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', normalized);
+      const select = document.getElementById('themeSelect');
+      if(select) select.value = normalized;
     }
 
     function fillTimeSelect(id, selected){
@@ -389,6 +576,7 @@
       state.analyzed = false;
       state.comparisonRows = [];
       renderAll();
+      switchTab('prep');
     }
 
     async function handleMasterFile(e){
@@ -783,7 +971,86 @@
       return { level, reasonText: reasons.length ? [...new Set(reasons)].join(', ') : 'Belirgin risk sinyali yok' };
     }
 
-    function renderAll(){ renderTop(); renderAdminList(); renderDetail(); renderCompare(); renderQuality(); }
+    function renderAll(){ renderTop(); renderActionBar(); renderPrep(); renderAdminList(); renderBulkInline(); renderDetail(); renderCompare(); renderQuality(); renderPdfPanel(); }
+
+    function setDatePreset(mode){
+      const today = DateTime.now().setZone('Europe/Istanbul');
+      let start, end;
+      if(mode === 'thisMonth'){
+        start = today.startOf('month'); end = today.endOf('month');
+      }else if(mode === 'lastMonth'){
+        const last = today.minus({ months:1 }); start = last.startOf('month'); end = last.endOf('month');
+      }else{
+        start = today.minus({ days:6 }).startOf('day'); end = today.startOf('day');
+      }
+      document.getElementById('analysisStart').value = start.toISODate();
+      document.getElementById('analysisEnd').value = end.toISODate();
+      saveSettings(); renderAll();
+    }
+
+    function prepStats(){
+      const missingRoom = state.admins.filter(a => !a.roomId).length;
+      const missingName = state.admins.filter(a => !a.adminName).length;
+      const hasDates = !!document.getElementById('analysisStart').value && !!document.getElementById('analysisEnd').value;
+      const hasFiles = state.quality.totalRows > 0;
+      const hasAdmins = state.admins.length > 0;
+      const validRate = state.quality.totalRows ? Math.round(state.quality.validRows / state.quality.totalRows * 100) : 0;
+      const ready = hasFiles && hasAdmins && hasDates && missingRoom === 0;
+      return { missingRoom, missingName, hasDates, hasFiles, hasAdmins, validRate, ready };
+    }
+
+    function renderActionBar(){
+      const s = prepStats();
+      let label = 'Hazırlık bekleniyor', cls = 'badge b-blue';
+      if(s.ready && state.analyzed){ label = 'Analiz hazır'; cls = 'badge b-green'; }
+      else if(s.ready){ label = 'Analize hazır'; cls = 'badge b-yellow'; }
+      else if(s.hasFiles){ label = 'Eksik bilgi var'; cls = 'badge b-red'; }
+      els.actionStatus.className = cls;
+      els.actionStatus.textContent = label;
+      const parts = [`${state.admins.length} admin`, `${state.quality.validRows} geçerli satır`, `${s.missingRoom} eksik oda`, s.hasDates ? 'dönem seçili' : 'dönem seçilmedi'];
+      els.actionSummary.innerHTML = parts.map(x => `<b>${esc(x)}</b>`).join(' · ');
+    }
+
+    function stepClass(ok, warn=false){ return ok ? 'ok' : warn ? 'warn' : 'bad'; }
+    function checkItem(cls, icon, title, sub, action=''){
+      return `<div class="check-item ${cls}"><div class="check-icon">${icon}</div><div><div class="check-title">${esc(title)}</div><div class="check-sub">${esc(sub)}</div></div><div>${action}</div></div>`;
+    }
+    function renderPrep(){
+      const s = prepStats();
+      const skipped = Math.max(0, state.quality.totalRows - state.quality.validRows);
+      const nextAction = !s.hasFiles
+        ? { title:'Önce Excel yükle', sub:'Yayın kayıt dosyalarını yükleyince adminler otomatik ayrılacak.', btn:'Excel Yükle', act:'document.getElementById(\'fileInput\').click()' }
+        : !s.hasDates
+          ? { title:'Analiz dönemini seç', sub:'Devamsızlığı doğru yakalamak için başlangıç ve bitiş tarihi gerekli.', btn:'Bu Ayı Seç', act:'setDatePreset(\'thisMonth\')' }
+          : s.missingRoom > 0
+            ? { title:'Eksik oda bilgilerini tamamla', sub:`${s.missingRoom} adminin oda ID bilgisi eksik. Toplu ayar ekranında tamamla.`, btn:'Toplu Ayara Git', act:'switchTab(\'bulk\')' }
+            : !state.analyzed
+              ? { title:'Analizi başlat', sub:'Hazırlık tamam. Analiz üretip sonuçları karşılaştır.', btn:'Analizi Başlat', act:'analyzeAll()' }
+              : { title:'PDF raporu al', sub:'Analiz hazır. Detaylı raporu PDF olarak indirebilirsin.', btn:'PDF Rapor', act:'switchTab(\'pdf\')' };
+
+      els.prepContent.innerHTML = `
+        <div class="stepper">
+          <div class="step ${stepClass(s.hasFiles)}"><div class="step-num">1</div><div class="step-title">Dosya Yükle</div><div class="step-note">${state.quality.totalRows || 0} satır tarandı</div></div>
+          <div class="step ${stepClass(s.hasAdmins, s.hasFiles)}"><div class="step-num">2</div><div class="step-title">Adminleri Bul</div><div class="step-note">${state.admins.length} admin profili</div></div>
+          <div class="step ${stepClass(s.hasDates, s.hasFiles)}"><div class="step-num">3</div><div class="step-title">Dönem Seç</div><div class="step-note">Devamsızlık için şart</div></div>
+          <div class="step ${stepClass(s.missingRoom === 0 && s.hasAdmins, s.hasAdmins)}"><div class="step-num">4</div><div class="step-title">Eksikleri Tamamla</div><div class="step-note">${s.missingRoom} eksik oda</div></div>
+          <div class="step ${stepClass(state.analyzed, s.ready)}"><div class="step-num">5</div><div class="step-title">Analiz ve PDF</div><div class="step-note">${state.analyzed ? 'Sonuç hazır' : 'Analiz bekleniyor'}</div></div>
+        </div>
+        <div class="prep-grid">
+          <div class="check-list">
+            ${checkItem(s.hasFiles?'ok':'bad', s.hasFiles?'✓':'!', 'Yayın kayıt dosyası', s.hasFiles ? `${state.quality.validRows} geçerli satır okundu` : 'Henüz dosya yüklenmedi')}
+            ${checkItem(s.validRate >= 85 ? 'ok' : s.hasFiles ? 'warn' : 'bad', s.hasFiles ? `${s.validRate}%` : '!', 'Veri kalitesi', s.hasFiles ? `${skipped} satır atlandı` : 'Veri yok')}
+            ${checkItem(s.hasDates?'ok':'bad', s.hasDates?'✓':'!', 'Analiz dönemi', s.hasDates ? `${document.getElementById('analysisStart').value} / ${document.getElementById('analysisEnd').value}` : 'Başlangıç ve bitiş tarihi seçilmedi')}
+            ${checkItem(s.missingRoom === 0 && s.hasAdmins ? 'ok' : s.hasAdmins ? 'warn' : 'bad', s.missingRoom === 0 && s.hasAdmins ? '✓' : '!', 'Admin profil bilgileri', s.hasAdmins ? `${s.missingRoom} oda eksik, ${s.missingName} isim eksik` : 'Admin bulunmadı', s.missingRoom ? '<button class="btn-secondary btn-mini" onclick="switchTab(\'bulk\')">Düzenle</button>' : '')}
+          </div>
+          <div class="next-box">
+            <div class="next-title">${esc(nextAction.title)}</div>
+            <div class="next-sub">${esc(nextAction.sub)}</div>
+            <button class="btn-primary" onclick="${nextAction.act}">${esc(nextAction.btn)}</button>
+          </div>
+        </div>`;
+    }
+
     function renderTop(){
       const valid = state.quality.validRows, total = state.quality.totalRows;
       document.getElementById('mAdmin').textContent = state.admins.length;
@@ -882,12 +1149,28 @@
       els.qualityContent.innerHTML = `<div class="kpi-grid">${kpi('Toplam Satır',q.totalRows,'Tüm sheetler')}${kpi('Geçerli Satır',q.validRows,'Analize alınan')}${kpi('Atlanan Satır',Math.max(0,q.totalRows-q.validRows),'Kalite kontrol')}${kpi('Sheet',q.sheets.length,'Taranan')}${kpi('Admin',state.admins.length,'Bulunan')}${kpi('Kalite',q.totalRows?Math.round(q.validRows/q.totalRows*100)+'%':'0%','Geçerli oran')}</div><div style="height:14px"></div>${sheetTable}${skipped}${warnings}`;
     }
 
-    function openBulkModal(){ renderBulkTable(); els.bulkModal.classList.remove('hidden'); }
-    function renderBulkTable(){
-      els.bulkTable.innerHTML = `<thead><tr><th>Admin</th><th>ID</th><th>Oda</th><th>Başlangıç</th><th>Bitiş</th><th>Haftalık Günler</th><th>Hatırla</th></tr></thead><tbody>${state.admins.map(a => `<tr data-id="${escAttr(a.adminId)}"><td><input class="name-input bName" value="${escAttr(a.adminName)}"></td><td>${esc(a.adminId)}</td><td><input class="room-input bRoom" value="${escAttr(a.roomId)}"></td><td><select class="bStart">${timeOptions(a.startTime)}</select></td><td><select class="bEnd">${timeOptions(a.endTime)}</select></td><td>${dayKeys.map(k => `<label style="display:inline-flex;gap:3px;margin-right:5px"><input class="bDay" data-day="${k}" type="checkbox" ${a.weeklySchedule[k]?'checked':''}>${dayLabels[k]}</label>`).join('')}</td><td><input class="bRemember" type="checkbox" ${a.remember?'checked':''}></td></tr>`).join('')}</tbody>`;
+
+    function renderBulkInline(){
+      if(!state.admins.length){
+        els.bulkInlineWrap.className = 'empty';
+        els.bulkInlineWrap.innerHTML = '<div class="empty-help"><h3>Toplu ayar için admin yok</h3><p>Önce yayın kayıt Excel dosyalarını yükle. Adminler otomatik ayrıldıktan sonra bu tabloda düzenlenir.</p><button class="btn-primary" onclick="document.getElementById(\'fileInput\').click()">Excel Yükle</button></div>';
+        return;
+      }
+      els.bulkInlineWrap.className = '';
+      els.bulkInlineWrap.innerHTML = '<div class="table-wrap"><table class="bulk-table" id="bulkInlineTable"></table></div>';
+      renderBulkTableTo(document.getElementById('bulkInlineTable'));
     }
-    function saveBulkChanges(){
-      els.bulkTable.querySelectorAll('tbody tr').forEach(tr => {
+
+    function renderBulkTableTo(tableEl){
+      tableEl.innerHTML = `<thead><tr><th>Durum</th><th>Admin</th><th>ID</th><th>Oda</th><th>Başlangıç</th><th>Bitiş</th><th>Haftalık Günler</th><th>Hatırla</th></tr></thead><tbody>${state.admins.map(a => {
+        const status = !a.roomId ? '<span class="row-bad">Oda gerekli</span>' : !a.adminName ? '<span class="row-warn">İsim eksik</span>' : '<span class="b-green badge">Hazır</span>';
+        return `<tr data-id="${escAttr(a.adminId)}"><td>${status}</td><td><input class="name-input bName" value="${escAttr(a.adminName)}"></td><td>${esc(a.adminId)}</td><td><input class="room-input bRoom" value="${escAttr(a.roomId)}" placeholder="Oda ID"></td><td><select class="bStart">${timeOptions(a.startTime)}</select></td><td><select class="bEnd">${timeOptions(a.endTime)}</select></td><td>${dayKeys.map(k => `<label style="display:inline-flex;gap:3px;margin-right:5px"><input class="bDay" data-day="${k}" type="checkbox" ${a.weeklySchedule[k]?'checked':''}>${dayLabels[k]}</label>`).join('')}</td><td><input class="bRemember" type="checkbox" ${a.remember?'checked':''}></td></tr>`;
+      }).join('')}</tbody>`;
+    }
+
+    function saveBulkFromTable(tableEl){
+      if(!tableEl) return;
+      tableEl.querySelectorAll('tbody tr').forEach(tr => {
         const a = state.admins.find(x => x.adminId === tr.dataset.id);
         if(!a) return;
         a.adminName = tr.querySelector('.bName').value.trim();
@@ -898,6 +1181,18 @@
         tr.querySelectorAll('.bDay').forEach(ch => a.weeklySchedule[ch.dataset.day] = ch.checked);
         updateProfile(a);
       });
+    }
+
+    function saveInlineBulkChanges(){
+      saveBulkFromTable(document.getElementById('bulkInlineTable'));
+      renderAll();
+      switchTab('prep');
+    }
+
+    function openBulkModal(){ renderBulkTable(); els.bulkModal.classList.remove('hidden'); }
+    function renderBulkTable(){ renderBulkTableTo(els.bulkTable); }
+    function saveBulkChanges(){
+      saveBulkFromTable(els.bulkTable);
       els.bulkModal.classList.add('hidden');
       renderAll();
     }
@@ -910,6 +1205,28 @@
     }
     function toCsv(rows){ return rows.map(r => r.map(v => `"${String(v ?? '').replaceAll('"','""')}"`).join(',')).join('\n'); }
     function downloadText(name, text){ const blob = new Blob([text], { type:'text/csv;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url); }
+
+
+    function renderPdfPanel(){
+      const risk = state.comparisonRows.filter(r => r.riskLevel !== RISK.LOW).length;
+      const ready = state.analyzed && state.comparisonRows.length;
+      els.pdfContent.innerHTML = `
+        <div class="prep-grid">
+          <div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr)">
+              ${kpi('Analiz Durumu', ready ? 'Hazır' : 'Bekliyor', ready ? 'PDF alınabilir' : 'Önce analiz üret')}
+              ${kpi('Riskli Admin', risk, 'Orta + yüksek')}
+              ${kpi('Admin', state.admins.length, 'Rapor kapsamı')}
+              ${kpi('Geçerli Satır', state.quality.validRows, 'Rapor verisi')}
+            </div>
+          </div>
+          <div class="notice">
+            <b>PDF içeriği:</b><br>
+            Yönetici özeti, karşılaştırma tablosu, risk seviyesi ve nedeni, admin bazlı aylık özet, günlük detaylar, veri kalitesi etkileri.
+            <div class="btn-row"><button class="btn-primary" onclick="downloadPdf()">PDF Oluştur</button><button class="btn-secondary" onclick="switchTab('compare')">Karşılaştırmayı Gör</button></div>
+          </div>
+        </div>`;
+    }
 
     function downloadPdf(){
       if(!state.analyzed || !state.comparisonRows.length){ alert('Önce analiz üret.'); return; }
@@ -939,7 +1256,7 @@
     function pdfHeader(doc,title,sub){ doc.setFillColor(16,21,30); doc.rect(0,0,doc.internal.pageSize.getWidth(),46,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(245,247,251); doc.text(title,16,22); doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(180,190,205); doc.text(sub,16,34); doc.setTextColor(20,20,20); }
     function pdfPara(doc,text,x,y,w){ doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,68,82); const lines = doc.splitTextToSize(text,w); doc.text(lines,x,y); return y + lines.length*13; }
     function pdfTable(doc,startY,head,body,fontSize=7){ doc.autoTable({ startY, head:[head], body, styles:{ font:'helvetica', fontSize, cellPadding:3, overflow:'linebreak' }, headStyles:{ fillColor:[28,35,47], textColor:[255,255,255] }, alternateRowStyles:{ fillColor:[247,249,252] }, margin:{ left:16, right:16 } }); }
-    function pdfFooter(doc){ const total = doc.getNumberOfPages(); for(let i=1;i<=total;i++){ doc.setPage(i); const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight(); doc.setDrawColor(228,232,238); doc.line(16,h-20,w-16,h-20); doc.setFontSize(8); doc.setTextColor(125,132,144); doc.text('YAVER Admin Takip Sistemi Pro v2',16,h-8); doc.text(`Sayfa ${i} / ${total}`,w-64,h-8); } }
+    function pdfFooter(doc){ const total = doc.getNumberOfPages(); for(let i=1;i<=total;i++){ doc.setPage(i); const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight(); doc.setDrawColor(228,232,238); doc.line(16,h-20,w-16,h-20); doc.setFontSize(8); doc.setTextColor(125,132,144); doc.text('YAVER Admin Takip Sistemi Pro v4',16,h-8); doc.text(`Sayfa ${i} / ${total}`,w-64,h-8); } }
 
     function clearAll(){
       state.rawRows=[]; state.admins=[]; state.master={}; state.selectedAdminId=null; state.comparisonRows=[]; state.analyzed=false; state.quality={ totalRows:0, validRows:0, skipped:[], sheets:[], warnings:[] };
