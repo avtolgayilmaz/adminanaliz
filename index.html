@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAVER Admin Takip Sistemi Pro v4</title>
+  <title>YAVER Admin Takip Sistemi Pro v4.1.1</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"></script>
@@ -260,6 +260,288 @@
     :root[data-theme="light"] .action-bar{box-shadow:0 14px 30px rgba(15,23,42,.10)}
     :root[data-theme="light"] input[type="file"]{color:var(--muted)}
 
+
+
+    /* Light tema okunabilirlik düzeltmesi */
+    :root[data-theme="light"]{
+      --bg:#eef3f8;
+      --bg2:#f9fbfd;
+      --panel:#ffffff;
+      --panel2:#f6f8fb;
+      --panel3:#e8eef6;
+      --line:#cbd5e1;
+      --line2:#dbe3ee;
+      --text:#0b1220;
+      --muted:#334155;
+      --muted2:#526173;
+      --yellow:#b77900;
+      --yellow2:#d99a00;
+      --green:#15803d;
+      --red:#b91c1c;
+      --blue:#0369a1;
+      --purple:#6d28d9;
+      --orange:#c2410c;
+      --shadow:0 14px 34px rgba(15,23,42,.12);
+      --surface-glass:#ffffff;
+      --surface-glass-2:#ffffff;
+      --metric-bg:#ffffff;
+      --box-bg:#ffffff;
+      --table-bg:#ffffff;
+      --thead-bg:#e6edf6;
+      --tbody-hover:#edf3fa;
+      --action-bg:rgba(255,255,255,.96);
+      --input-bg:#ffffff;
+      --modal-bg:#ffffff;
+    }
+
+    :root[data-theme="light"] body,
+    :root[data-theme="light"] input,
+    :root[data-theme="light"] select,
+    :root[data-theme="light"] textarea,
+    :root[data-theme="light"] button{
+      font-size:16px;
+    }
+
+    :root[data-theme="light"] .app{
+      gap:20px;
+    }
+
+    :root[data-theme="light"] .hero,
+    :root[data-theme="light"] .panel,
+    :root[data-theme="light"] .card,
+    :root[data-theme="light"] .metric,
+    :root[data-theme="light"] .admin-card,
+    :root[data-theme="light"] .modal-card{
+      background:#ffffff;
+      border-color:#d5deea;
+      box-shadow:0 14px 32px rgba(15,23,42,.10);
+    }
+
+    :root[data-theme="light"] .title{
+      font-size:38px;
+      line-height:1.12;
+      color:#07101f;
+      letter-spacing:-.35px;
+    }
+
+    :root[data-theme="light"] .sub{
+      font-size:15px;
+      line-height:1.65;
+      color:#334155;
+      font-weight:600;
+    }
+
+    :root[data-theme="light"] .section-title{
+      font-size:22px;
+      color:#07101f;
+    }
+
+    :root[data-theme="light"] .section-sub,
+    :root[data-theme="light"] .card-sub,
+    :root[data-theme="light"] .small,
+    :root[data-theme="light"] .metric-note,
+    :root[data-theme="light"] .kpi-note,
+    :root[data-theme="light"] .step-note,
+    :root[data-theme="light"] .check-sub,
+    :root[data-theme="light"] .admin-meta{
+      font-size:13.5px;
+      line-height:1.6;
+      color:#475569;
+    }
+
+    :root[data-theme="light"] .card-title{
+      font-size:21px;
+      color:#07101f;
+      line-height:1.25;
+    }
+
+    :root[data-theme="light"] .field label{
+      font-size:14.5px;
+      color:#111827;
+      font-weight:950;
+    }
+
+    :root[data-theme="light"] .field label .zh,
+    :root[data-theme="light"] thead th .zh{
+      font-size:12px;
+      color:#64748b;
+    }
+
+    :root[data-theme="light"] input[type="text"],
+    :root[data-theme="light"] input[type="number"],
+    :root[data-theme="light"] input[type="date"],
+    :root[data-theme="light"] select,
+    :root[data-theme="light"] textarea{
+      font-size:16px;
+      padding:14px 15px;
+      min-height:46px;
+      color:#0f172a;
+      background:#ffffff;
+      border-color:#cbd5e1;
+    }
+
+    :root[data-theme="light"] input::placeholder,
+    :root[data-theme="light"] textarea::placeholder{
+      color:#64748b;
+      opacity:1;
+    }
+
+    :root[data-theme="light"] button{
+      font-size:15px;
+      padding:13px 16px;
+    }
+
+    :root[data-theme="light"] .btn-mini{
+      font-size:13.5px;
+      padding:9px 12px;
+    }
+
+    :root[data-theme="light"] .tab{
+      font-size:15px;
+      color:#334155;
+      background:#f8fafc;
+      border-color:#cbd5e1;
+    }
+
+    :root[data-theme="light"] .tab.active{
+      color:#111827;
+      background:var(--yellow2);
+    }
+
+    :root[data-theme="light"] .pill,
+    :root[data-theme="light"] .theme-control{
+      font-size:14px;
+      color:#1e293b;
+      background:#ffffff;
+      border-color:#d5deea;
+    }
+
+    :root[data-theme="light"] .theme-control span,
+    :root[data-theme="light"] .theme-control select{
+      font-size:14px;
+      color:#1e293b;
+      font-weight:900;
+    }
+
+    :root[data-theme="light"] .metric-label,
+    :root[data-theme="light"] .kpi-label{
+      font-size:14px;
+      color:#475569;
+      font-weight:800;
+    }
+
+    :root[data-theme="light"] .metric-value{
+      font-size:34px;
+      color:#07101f;
+    }
+
+    :root[data-theme="light"] .kpi-value{
+      font-size:31px;
+      color:#07101f;
+    }
+
+    :root[data-theme="light"] .action-summary{
+      font-size:14px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    :root[data-theme="light"] .badge,
+    :root[data-theme="light"] .status-chip{
+      font-size:13px;
+      padding:6px 10px;
+      font-weight:950;
+    }
+
+    :root[data-theme="light"] .admin-name{
+      font-size:18px;
+      color:#07101f;
+    }
+
+    :root[data-theme="light"] .notice,
+    :root[data-theme="light"] .step,
+    :root[data-theme="light"] .check-item,
+    :root[data-theme="light"] .pdf-option,
+    :root[data-theme="light"] .empty{
+      background:#ffffff;
+      border-color:#d5deea;
+      color:#334155;
+    }
+
+    :root[data-theme="light"] .notice.good{
+      color:#166534;
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    :root[data-theme="light"] .notice.warn{
+      color:#92400e;
+      background:#fffbeb;
+      border-color:#fde68a;
+    }
+
+    :root[data-theme="light"] .next-sub{
+      color:#334155;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    :root[data-theme="light"] .table-wrap{
+      border-color:#cbd5e1;
+      background:#ffffff;
+    }
+
+    :root[data-theme="light"] table{
+      background:#ffffff;
+    }
+
+    :root[data-theme="light"] thead th{
+      background:#e6edf6;
+      color:#0f172a;
+      font-size:14px;
+      padding:13px 12px;
+      border-bottom:1px solid #cbd5e1;
+    }
+
+    :root[data-theme="light"] tbody td{
+      font-size:14px;
+      color:#0f172a;
+      padding:13px 12px;
+      border-bottom:1px solid #e2e8f0;
+    }
+
+    :root[data-theme="light"] tbody tr:hover{
+      background:#edf3fa;
+    }
+
+    :root[data-theme="light"] .s-green{color:#166534;background:#dcfce7;border-color:#86efac}
+    :root[data-theme="light"] .s-yellow{color:#92400e;background:#fef3c7;border-color:#fcd34d}
+    :root[data-theme="light"] .s-red{color:#991b1b;background:#fee2e2;border-color:#fca5a5}
+    :root[data-theme="light"] .s-blue{color:#075985;background:#e0f2fe;border-color:#7dd3fc}
+    :root[data-theme="light"] .s-gray{color:#334155;background:#f1f5f9;border-color:#cbd5e1}
+
+    :root[data-theme="light"] .progress{
+      background:#e2e8f0;
+      border-color:#cbd5e1;
+    }
+
+    :root[data-theme="light"] .progress-text{
+      color:#0f172a;
+      font-size:13px;
+    }
+
+    :root[data-theme="light"] .empty-help h3{
+      font-size:22px;
+      color:#0f172a;
+    }
+
+    :root[data-theme="light"] .empty-help p,
+    :root[data-theme="light"] .empty-steps{
+      font-size:15px;
+      color:#475569;
+      line-height:1.7;
+    }
+
     @media(max-width:1450px){.stepper{grid-template-columns:repeat(3,1fr)}.prep-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.top-metrics{grid-template-columns:repeat(2,1fr)}.admin-form{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}.quick-row{justify-content:flex-start}}
     @media(max-width:1080px){.layout{grid-template-columns:1fr}.sidebar{position:static;max-height:none}.grid-2,.grid-3{grid-template-columns:1fr}}
     @media(max-width:760px){.app{padding:12px}.stepper{grid-template-columns:1fr}.pdf-options{grid-template-columns:1fr}.action-bar{position:static}.kpi-grid,.top-metrics,.filters{grid-template-columns:1fr}.weekday-grid{grid-template-columns:repeat(2,1fr)}.title{font-size:27px}}
@@ -269,7 +551,7 @@
   <div class="app">
     <section class="hero">
       <div>
-        <h1 class="title">YAVER Admin Takip Sistemi Pro v4</h1>
+        <h1 class="title">YAVER Admin Takip Sistemi Pro v4.1</h1>
         <p class="sub">Excel yükle, adminleri otomatik ayır, analiz dönemini seç, toplu profilleri düzenle, risk seviyesini ve nedenlerini gör, detaylı PDF al.<br>上传 Excel、自动拆分管理员、选择分析周期、批量编辑资料、查看风险等级和原因、导出详细 PDF。</p>
         <div class="top-metrics">
           <div class="metric"><div class="metric-label">Admin</div><div class="metric-value" id="mAdmin">0</div><div class="metric-note">Eşleşen admin profili</div></div>
@@ -447,7 +729,7 @@
         </section>
       </main>
     </section>
-    <div class="footer">YAVER Admin Takip Sistemi Pro v4</div>
+    <div class="footer">YAVER Admin Takip Sistemi Pro v4.1</div>
   </div>
 
   <div id="bulkModal" class="modal hidden">
@@ -1256,7 +1538,7 @@
     function pdfHeader(doc,title,sub){ doc.setFillColor(16,21,30); doc.rect(0,0,doc.internal.pageSize.getWidth(),46,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(245,247,251); doc.text(title,16,22); doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(180,190,205); doc.text(sub,16,34); doc.setTextColor(20,20,20); }
     function pdfPara(doc,text,x,y,w){ doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,68,82); const lines = doc.splitTextToSize(text,w); doc.text(lines,x,y); return y + lines.length*13; }
     function pdfTable(doc,startY,head,body,fontSize=7){ doc.autoTable({ startY, head:[head], body, styles:{ font:'helvetica', fontSize, cellPadding:3, overflow:'linebreak' }, headStyles:{ fillColor:[28,35,47], textColor:[255,255,255] }, alternateRowStyles:{ fillColor:[247,249,252] }, margin:{ left:16, right:16 } }); }
-    function pdfFooter(doc){ const total = doc.getNumberOfPages(); for(let i=1;i<=total;i++){ doc.setPage(i); const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight(); doc.setDrawColor(228,232,238); doc.line(16,h-20,w-16,h-20); doc.setFontSize(8); doc.setTextColor(125,132,144); doc.text('YAVER Admin Takip Sistemi Pro v4',16,h-8); doc.text(`Sayfa ${i} / ${total}`,w-64,h-8); } }
+    function pdfFooter(doc){ const total = doc.getNumberOfPages(); for(let i=1;i<=total;i++){ doc.setPage(i); const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight(); doc.setDrawColor(228,232,238); doc.line(16,h-20,w-16,h-20); doc.setFontSize(8); doc.setTextColor(125,132,144); doc.text('YAVER Admin Takip Sistemi Pro v4.1',16,h-8); doc.text(`Sayfa ${i} / ${total}`,w-64,h-8); } }
 
     function clearAll(){
       state.rawRows=[]; state.admins=[]; state.master={}; state.selectedAdminId=null; state.comparisonRows=[]; state.analyzed=false; state.quality={ totalRows:0, validRows:0, skipped:[], sheets:[], warnings:[] };
